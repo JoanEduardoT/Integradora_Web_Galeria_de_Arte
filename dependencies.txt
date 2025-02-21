@@ -1,0 +1,14 @@
+FUNCIONAMIENTO WEB-----
+npx expo install react-dom react-native-web @expo/metro-runtime
+
+NAVIGATION----
+npm install @react-navigation/native
+npm install react-native-screens react-native-safe-area-context
+npm install @react-navigation/bottom-tabs
+npm install @react-navigation/stack
+npm install react-native-gesture-handler
+
+FONT----
+npx expo install expo-font
+
+npx expo install expo-image-picker
