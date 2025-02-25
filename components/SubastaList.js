@@ -4,10 +4,10 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 //iconos
 import Feather from '@expo/vector-icons/Feather';
 
-const SubastaList = ({nombre, precio, tiempo, descripcion, imageSource}) => {
+const SubastaList = ({nombre, precio, tiempo, descripcion, imageSource, onDelete}) => {
 
     return (
-        <TouchableOpacity style={styles.containerPrincipal}>
+        <View style={styles.containerPrincipal}>
 
             <View style={styles.containerSecundario}>
                 {imageSource && (<Image source={imageSource} style={styles.image}/>)}
@@ -25,12 +25,12 @@ const SubastaList = ({nombre, precio, tiempo, descripcion, imageSource}) => {
                 </View>
             </View>
 
-            <TouchableOpacity style={styles.eliminarBtn}>
+            <TouchableOpacity style={styles.eliminarBtn} onPress={onDelete}>
                 <Feather name="trash-2" size={30} color="#FFFFF3" />
             </TouchableOpacity>
             
 
-        </TouchableOpacity>
+        </View>
     )
 }
 

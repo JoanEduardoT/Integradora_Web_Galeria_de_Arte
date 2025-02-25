@@ -1,27 +1,60 @@
 import React from 'react'
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert } from 'react-native'
 import Navbar from '../components/Navbar'
-import { useFonts } from 'expo-font'
-import ProductContainer from '../components/ProductContainer'
-import { TextInput } from 'react-native-web'
-import { useState } from 'react'
+import { FlatList, TextInput } from 'react-native-web'
+import { useState, useEffect } from 'react'
+import * as ImagePicker from 'expo-image-picker';
 
 //iconos
 import Feather from '@expo/vector-icons/Feather';
-import SubastaList from '../components/SubastaList';
+import SubastaList from '../components/SubastaList'
 
 const Subastas = () => {
 
-    //Fuentes Personalizadas
-        const [fontsLoaded] = useFonts({
-            MadeTommy: require('../assets/fonts/MADE TOMMY Regular_PERSONAL USE.otf'),
-            MadeTommyBold: require('../assets/fonts/MADE TOMMY Bold_PERSONAL USE.otf'),
-            MalgunGothic: require('../assets/fonts/malgun-gothic.ttf'),
-        });
+    //Crear Producto Local
+    const [listaSubastas, setListaSubastas] = useState([]);
 
-    /* Codigo para cargar imagen */
-    const [image, setImage] = useState('')
+    [nombre, setNombre] = useState('');
+    [categoria, setCategoria] = useState('');
+    [precio, setPrecio] = useState('');
+    [tiempo, setTiempo] = useState('');
+    [descripcion, setDescripcion] = useState('');
+    [image, setImage] = useState('');
 
+    const handleSubmit = () => {
+        if (nombre == '' || precio == '' || tiempo == '' || descripcion == ''){
+            alert('No se puede crear el producto')
+
+            setNombre('');
+            setCategoria('');
+            setPrecio('');
+            setTiempo('');
+            setDescripcion('');
+            setImage('');
+        }else{
+            const subasta = {nombre, precio, tiempo, descripcion, image}
+
+            setListaSubastas(prevSubastas => [...prevSubastas, subasta])
+
+            setNombre('');
+            setCategoria('');
+            setPrecio('');
+            setTiempo('');
+            setDescripcion('');
+            setImage('');
+        }
+        
+    }
+
+    const handleDelete = (index) => {
+        setListaSubastas(prevSubastas => prevSubastas.filter((_, i) => i !== index));
+    }
+
+    /* useEffect(() => {
+        console.log(listaProductos);
+    }, [listaProductos]); */ 
+
+    //ImagePicker
     const handleImagePickerPress = async() => {
         let result = await ImagePicker.launchImageLibraryAsync({
         quality: 1,})
@@ -31,33 +64,66 @@ const Subastas = () => {
         }
     }
 
+
     return (
         <View style={{flex:1}}>
             <Navbar/>
 
             <ScrollView style={styles.scroll}>
-                    <Text style={styles.tituloBold}>CREAR SUBASTAS</Text>
+                    <Text style={styles.tituloBold}>CREAR SUBASTA</Text>
+                    
 
-                    <View style={styles.containerForm}>
-                        <View>
-                            <View style={styles.inputGroup}>
-                                <TextInput style={styles.input} placeholder='Nombre'/>
-                                <TextInput style={styles.input} placeholder='Precio'/>
-                                <TextInput style={styles.input} placeholder='Tiempo'/>
-                            </View>
+                    <View style={{ flexDirection: 'row', width: '80%', alignSelf: 'center', marginVertical: '5vh', }}>
+                        <View style={{width: '80%'}}>
+                            
+                                <TextInput style={styles.input} 
+                                placeholder='Nombre del Producto' 
+                                value={nombre}
+                                onChangeText={setNombre}
+                                placeholderTextColor={'#634455'}/>
 
-                            <TextInput multiline={true} style={styles.inputDescripcion} placeholder='Descripcion'/>                      
+                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                    
+                                    <TextInput style={styles.inputDoble} 
+                                    placeholder='Precio (MXN)' 
+                                    value={precio}
+                                    onChangeText={setPrecio}
+                                    placeholderTextColor={'#634455'}/>
+
+                                    <TextInput style={styles.inputDoble} 
+                                    placeholder='Tiempo' 
+                                    value={tiempo}
+                                    onChangeText={setTiempo}
+                                    placeholderTextColor={'#634455'}/>
+                                </View>
+                                
+                            
+
+                            <TextInput multiline={true} 
+                            style={styles.inputDescripcion} 
+                            placeholder='Descripcion' 
+                            value={descripcion}
+                            onChangeText={setDescripcion}
+                            placeholderTextColor={'#634455'}/>                      
                         </View>
 
-                        <View>
-                            <TouchableOpacity style={styles.imagePickerBtn}>
-                                <Feather name="upload" size={24} color="black" />
-                                <Text>Cargar Imagen</Text>
+                        <View style={{width: '20%'}}>
+                            <TouchableOpacity style={styles.imagePickerBtn} onPress={handleImagePickerPress}>
+
+                                {!image && <View style={{alignItems:'center'}}>
+                                    
+                                <Feather name="upload" size={24} color="#634455" />
+                                <Text style={{color: '#634455'}}>Cargar Imagen</Text>
+                                
+                                </View>}
+
+                                {image && <Image source={{ uri: image }} style={{width: '100%', height: '100%'}} resizeMode='contain'/>}
+                                
                             </TouchableOpacity>
                         </View>
                     </View>
 
-                    <TouchableOpacity style={styles.boton}>
+                    <TouchableOpacity style={styles.boton} onPress={handleSubmit}>
                         <Text style={styles.textoBtn}>Crear Subasta</Text>
                     </TouchableOpacity>
 
@@ -66,17 +132,23 @@ const Subastas = () => {
                     
                     <View style={{marginVertical: '5vh'}}>
 
-                        <SubastaList nombre={'Nombre Subasta'} precio={300} tiempo={'10:00:22'} imageSource={require('../assets/producto3.jpg')}
-                                                descripcion={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '}/>
 
-                        <SubastaList nombre={'Nombre Subasta'} precio={300} tiempo={'22:10:12'} imageSource={require('../assets/producto.jpg')}
-                                                descripcion={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '}/>
+                        <FlatList
+                        data={listaSubastas}
+                        renderItem={({item, index}) => (
+                            
+                            <SubastaList
+                            nombre={item.nombre}
+                            precio={item.precio}
+                            tiempo={item.tiempo}
+                            descripcion={item.descripcion}
+                            imageSource={item.image}
+                            onDelete={() => handleDelete(index)}
+                            />
+                        )}
+                        keyExtractor={(item, index) => index.toString()}
+                        />
 
-                        <SubastaList nombre={'Nombre Subasta'} precio={300} tiempo={'05:22'} imageSource={require('../assets/producto2.jpeg')}
-                                                descripcion={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '}/>
-
-                        <SubastaList nombre={'Nombre Subasta'} precio={300} tiempo={"09:16"} imageSource={require('../assets/producto4.jpg')}
-                                                descripcion={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '}/>
                     </View>
                     
 
@@ -124,33 +196,42 @@ const styles = StyleSheet.create({
         
     },
     input:{
-        backgroundColor: '#e9e9e9',
-        width: '30%',
+        backgroundColor: '#FFF9F9',
+        width: '100%',
         height: 60,
         paddingHorizontal: 20,
         marginBottom: 20,
         borderRadius: 10,
-        boxShadow: 'inset 0px 1px 2px rgba(0, 0, 0, 0.3)',
+        boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)',
+    },
+    inputDoble:{
+        backgroundColor: '#FFF9F9',
+        width: '49%',
+        height: 60,
+        paddingHorizontal: 20,
+        marginBottom: 20,
+        borderRadius: 10,
+        boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)',
     },
     inputDescripcion:{
         padding: 10,
-        backgroundColor: '#e9e9e9',
+        backgroundColor: '#FFF9F9',
         width: '100%',
         height: 100,
         paddingHorizontal: 20,
         marginRight: 20,
         borderRadius:10,
-        boxShadow: 'inset 0px 1px 2px rgba(0, 0, 0, 0.3)', 
+        boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)', 
     },
     imagePickerBtn:{
         padding: 10,
-        backgroundColor: '#e9e9e9',
+        backgroundColor: '#FFF9F9',
+        flex: 1,
         width: '100%',
-        height: 180,
         paddingHorizontal: 20,
         marginHorizontal: 20,
         borderRadius:10,
-        boxShadow: 'inset 0px 1px 2px rgba(0, 0, 0, 0.3)',
+        boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center'

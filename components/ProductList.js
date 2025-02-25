@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 //iconos
 import Feather from '@expo/vector-icons/Feather';
 
-const ProductList = ({nombre, precio, cantidad, descripcion, imageSource}) => {
+const ProductList = ({nombre, precio, cantidad, descripcion, imageSource, onDelete}) => {
 
     return (
         <TouchableOpacity style={styles.containerPrincipal}>
@@ -25,7 +25,7 @@ const ProductList = ({nombre, precio, cantidad, descripcion, imageSource}) => {
                 </View>
             </View>
 
-            <TouchableOpacity style={styles.eliminarBtn}>
+            <TouchableOpacity style={styles.eliminarBtn} onPress={onDelete}>
                 <Feather name="trash-2" size={30} color="#FFFFF3" />
             </TouchableOpacity>
             
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        width: '80%',
+        width: '99%',
         height: 250,
         paddingHorizontal: 50,
         backgroundColor: '#FFF9F9',

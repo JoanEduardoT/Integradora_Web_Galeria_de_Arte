@@ -16,7 +16,7 @@ const Stack = createStackNavigator();
 function MyStack() {
     return(
         <Stack.Navigator
-            initialRouteName="Login"
+            initialRouteName="Productos"
         >
             <Stack.Screen
                 name="Dashboard"

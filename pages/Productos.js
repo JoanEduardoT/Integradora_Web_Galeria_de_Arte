@@ -1,27 +1,69 @@
 import React from 'react'
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert } from 'react-native'
 import Navbar from '../components/Navbar'
-import { useFonts } from 'expo-font'
-import ProductContainer from '../components/ProductContainer'
-import { TextInput } from 'react-native-web'
-import { useState } from 'react'
+import { FlatList, TextInput } from 'react-native-web'
+import { useState, useEffect } from 'react'
+import * as ImagePicker from 'expo-image-picker';
+import ProductList from '../components/ProductList'
+import ProductCard from '../components/ProductCard'
 
 //iconos
 import Feather from '@expo/vector-icons/Feather';
-import ProductList from '../components/ProductList'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+
+
 
 const Productos = () => {
 
-    //Fuentes Personalizadas
-        const [fontsLoaded] = useFonts({
-            MadeTommy: require('../assets/fonts/MADE TOMMY Regular_PERSONAL USE.otf'),
-            MadeTommyBold: require('../assets/fonts/MADE TOMMY Bold_PERSONAL USE.otf'),
-            MalgunGothic: require('../assets/fonts/malgun-gothic.ttf'),
-        });
+    //Modo de vista
+    [vista, setVista] = useState('Lista');
 
-    /* Codigo para cargar imagen */
-    const [image, setImage] = useState('')
+    const handleVista = (tipo) => {
+        console.log('Cambiando vista a:', tipo);  // Para ver si se cambia correctamente
+        setVista(tipo);
+    }
 
+    //Crear Producto Local
+    [listaProductos, setListaProductos] = useState([]);
+    [nombre, setNombre] = useState('');
+    [categoria, setCategoria] = useState('');
+    [precio, setPrecio] = useState('');
+    [cantidad, setCantidad] = useState('');
+    [descripcion, setDescripcion] = useState('');
+    [image, setImage] = useState('');
+
+    //Creacion Producto
+    const handleSubmit = () => {
+        if (nombre == '' || precio == '' || cantidad == '' || descripcion == ''){
+            alert('No se puede crear el producto')
+
+            setNombre('');
+            setCategoria('');
+            setPrecio('');
+            setCantidad('');
+            setDescripcion('');
+            setImage('');
+        }else{
+            const producto = {nombre, categoria, precio, cantidad, descripcion, image}
+
+            setListaProductos(prevProductos => [...prevProductos, producto])
+
+            setNombre('');
+            setCategoria('');
+            setPrecio('');
+            setCantidad('');
+            setDescripcion('');
+            setImage('');
+        }
+        
+    }
+
+    const handleDelete = (index) => {
+        setListaProductos(prevProductos => prevProductos.filter((_, i) => i !== index));
+    }
+
+
+    //ImagePicker
     const handleImagePickerPress = async() => {
         let result = await ImagePicker.launchImageLibraryAsync({
         quality: 1,})
@@ -31,6 +73,7 @@ const Productos = () => {
         }
     }
 
+
     return (
         <View style={{flex:1}}>
             <Navbar/>
@@ -38,47 +81,107 @@ const Productos = () => {
             <ScrollView style={styles.scroll}>
                     <Text style={styles.tituloBold}>CREAR PRODUCTOS</Text>
 
-                    <View style={styles.containerForm}>
-                        <View>
-                            <View style={styles.inputGroup}>
-                                <TextInput style={styles.input} placeholder='Nombre'/>
-                                <TextInput style={styles.input} placeholder='Precio'/>
-                                <TextInput style={styles.input} placeholder='Cantidad'/>
-                            </View>
+                    <View style={{ flexDirection: 'row', width: '80%', alignSelf: 'center', marginVertical: '5vh', }}>
+                        <View style={{width: '80%'}}>
+                            
+                                <TextInput style={styles.input} 
+                                placeholder='Nombre del Producto' 
+                                value={nombre}
+                                onChangeText={setNombre}
+                                placeholderTextColor={'#634455'}/>
 
-                            <TextInput multiline={true} style={styles.inputDescripcion} placeholder='Descripcion'/>                      
+                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                    
+                                    <TextInput style={styles.inputDoble} 
+                                    placeholder='Precio (MXN)' 
+                                    value={precio}
+                                    onChangeText={setPrecio}
+                                    placeholderTextColor={'#634455'}/>
+
+                                    <TextInput style={styles.inputDoble} 
+                                    placeholder='Cantidad' 
+                                    value={cantidad}
+                                    onChangeText={setCantidad}
+                                    placeholderTextColor={'#634455'}/>
+                                </View>
+                                
+                            
+
+                            <TextInput multiline={true} 
+                            style={styles.inputDescripcion} 
+                            placeholder='Descripcion' 
+                            value={descripcion}
+                            onChangeText={setDescripcion}
+                            placeholderTextColor={'#634455'}/>                      
                         </View>
 
-                        <View>
-                            <TouchableOpacity style={styles.imagePickerBtn}>
-                                <Feather name="upload" size={24} color="black" />
-                                <Text>Cargar Imagen</Text>
+                        <View style={{width: '20%'}}>
+                            <TouchableOpacity style={styles.imagePickerBtn} onPress={handleImagePickerPress}>
+
+                                {!image && <View style={{alignItems:'center'}}>
+                                    
+                                <Feather name="upload" size={24} color="#634455" />
+                                <Text style={{color: '#634455'}}>Cargar Imagen</Text>
+                                
+                                </View>}
+
+                                {image && <Image source={{ uri: image }} style={{width: '100%', height: '100%', resizeMode: 'contain'}}/>}
+                                
                             </TouchableOpacity>
                         </View>
                     </View>
 
-                    <TouchableOpacity style={styles.boton}>
+                    <TouchableOpacity style={styles.boton} onPress={handleSubmit}>
                         <Text style={styles.textoBtn}>Crear Producto</Text>
                     </TouchableOpacity>
 
-                    <Text style={styles.tituloBold}>MIS PRODUCTOS</Text>
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <Text style={styles.tituloBold}>MIS PRODUCTOS</Text>
+                        <View style={{flexDirection: 'row', alignItems: 'center', marginRight: '8%'}}>
+                            
+                            <TouchableOpacity style={styles.botonVistaMosaico} onPress={()=> handleVista('Mosaico')}>
+                                <MaterialCommunityIcons name="view-grid" size={24} color="white" />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.botonVistaLista} onPress={()=> handleVista('Lista')}>
+                                <MaterialCommunityIcons name="format-list-bulleted" size={24} color="white" />
+                            </TouchableOpacity>
+
+                        </View>
+                    </View>
+                    
 
                     
-                    <View style={{marginVertical: '5vh'}}>
-                        <ProductList nombre={'Nombre Producto'} precio={300} cantidad={21} imageSource={require('../assets/producto.jpg')}
-                        descripcion={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '}/>
+                    <View style={{width: '80%', marginVertical: '5vh', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', alignSelf: 'center'}}>
+                    
+                    {vista === 'Lista' && (
+                        <FlatList
+                            data={listaProductos}
+                            renderItem={({item, index}) => (
+                                <ProductList
+                                    nombre={item.nombre}
+                                    precio={item.precio}
+                                    cantidad={item.cantidad}
+                                    categoria={'Pendiente'}
+                                    descripcion={item.descripcion}
+                                    imageSource={item.image}
+                                    onDelete={() => handleDelete(index)}
+                                />
+                            )}
+                            keyExtractor={(item, index) => index.toString()}
+                        />
+                    )}
 
-                        <ProductList nombre={'Nombre Producto'} precio={300} cantidad={21} imageSource={require('../assets/producto.jpg')}
-                                                descripcion={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '}/>
+                    {vista === 'Mosaico' && listaProductos.map((item, index)=> (
+                        <ProductCard 
+                            nombre={item.nombre}
+                            precio={item.precio}
+                            cantidad={item.cantidad}
+                            categoria={'Pendiente'}
+                            imageSource={item.image}
+                            onDelete={() => handleDelete(index)}/>
+                    ))}
 
-                        <ProductList nombre={'Nombre Producto'} precio={300} cantidad={21} imageSource={require('../assets/producto.jpg')}
-                                                descripcion={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '}/>
-
-                        <ProductList nombre={'Nombre Producto'} precio={300} cantidad={21} imageSource={require('../assets/producto.jpg')}
-                                                descripcion={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '}/>
-
-                        <ProductList nombre={'Nombre Producto'} precio={300} cantidad={21} imageSource={require('../assets/producto.jpg')}
-                                                descripcion={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '}/>
                     </View>
                     
 
@@ -126,33 +229,42 @@ const styles = StyleSheet.create({
         
     },
     input:{
-        backgroundColor: '#e9e9e9',
-        width: '30%',
+        backgroundColor: '#FFF9F9',
+        width: '100%',
         height: 60,
         paddingHorizontal: 20,
         marginBottom: 20,
         borderRadius: 10,
-        boxShadow: 'inset 0px 1px 2px rgba(0, 0, 0, 0.3)',
+        boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)',
+    },
+    inputDoble:{
+        backgroundColor: '#FFF9F9',
+        width: '49%',
+        height: 60,
+        paddingHorizontal: 20,
+        marginBottom: 20,
+        borderRadius: 10,
+        boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)',
     },
     inputDescripcion:{
         padding: 10,
-        backgroundColor: '#e9e9e9',
+        backgroundColor: '#FFF9F9',
         width: '100%',
         height: 100,
         paddingHorizontal: 20,
         marginRight: 20,
         borderRadius:10,
-        boxShadow: 'inset 0px 1px 2px rgba(0, 0, 0, 0.3)', 
+        boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)', 
     },
     imagePickerBtn:{
         padding: 10,
-        backgroundColor: '#e9e9e9',
+        backgroundColor: '#FFF9F9',
+        flex: 1,
         width: '100%',
-        height: 180,
         paddingHorizontal: 20,
         marginHorizontal: 20,
         borderRadius:10,
-        boxShadow: 'inset 0px 1px 2px rgba(0, 0, 0, 0.3)',
+        boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center'
@@ -171,6 +283,25 @@ const styles = StyleSheet.create({
     textoBtn:{
         fontSize: 15,
         color: '#FFFFF3'
+    },
+    botonVistaMosaico:{
+        borderTopLeftRadius: 10,
+        borderBottomLeftRadius: 10,
+        backgroundColor: '#634455',
+        width: 50,
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    botonVistaLista:{
+        borderTopRightRadius: 10,
+        borderBottomRightRadius: 10,
+        backgroundColor: '#634455',
+        width: 50,
+        height: 30,
+        marginLeft: 2,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })
 
