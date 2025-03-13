@@ -1,12 +1,45 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, KeyboardAvoidingView, Platform, Alert, ImageBackground } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios'
 
 const Login = () => {
 
+    const [loading, setLoading] = useState(false); 
+          
     const Navigation = useNavigation()
-
+    const[email,setEmail] = useState('')
+    const[password,setPassword] = useState('')
+    const onSubmit = async (data) => {
+        console.log('Formulario enviado:', email);
+        try {
+          const response = await axios.post('http://192.168.38.3:4000/login', {
+            email: email,
+            pass: password,
+          });
+      
+          const { token, user } = response.data; // Extraemos 'user' y 'token'
+          const userId = user.id; // Ahora extraemos el 'id' correctamente
+      
+          console.log('Respuesta del servidor:', response.data);
+          console.log('userId:', userId); // Verificamos si ahora 'userId' es válido
+      
+          // Guardamos 'userId' en AsyncStorage
+          await AsyncStorage.setItem('userToken', token);
+          await AsyncStorage.setItem('userId', userId.toString());
+      
+          Navigation.navigate('Dashboard');
+        } catch (error) {
+          console.log("Error que da:", error);
+          setLoading(false);
+          if (error.response) {
+            setErrorMessage(error.response.data.message || 'Error al iniciar sesión');
+          } else {
+            setErrorMessage('No se pudo conectar al servidor');
+          }
+        }
+      };
 
     return (
         <ImageBackground style={styles.background} source={require('../assets/Background.png')} resizeMode='cover'>
@@ -20,12 +53,12 @@ const Login = () => {
                 <Text style={styles.titulo}>Iniciar Sesión</Text>
 
 
-                <TextInput style={styles.input} placeholder='Correo Electronico' keyboardType='email-address'/>
-                <TextInput style={styles.input} placeholder='Contraseña' secureTextEntry={true}/>
+                <TextInput style={styles.input} placeholder='Correo Electronico' keyboardType='email-address' onChangeText={setEmail}/>
+                <TextInput style={styles.input} placeholder='Contraseña' secureTextEntry={true} onChangeText={setPassword}/>
 
 
 
-                <TouchableOpacity style={styles.boton} onPress={()=> Navigation.navigate('Dashboard')}>
+                <TouchableOpacity style={styles.boton} onPress={onSubmit}>
                     <Text style={styles.textoBtn}>
                     Ingresar
                     </Text>

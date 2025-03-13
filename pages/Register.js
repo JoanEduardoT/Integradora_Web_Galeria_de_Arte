@@ -1,10 +1,49 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
+import axios from 'axios'
 
 const Register = () => {
 
     const Navigation = useNavigation()
+
+    const [nombre,setNombre] = useState('');
+    const [apellido,setApellido] = useState('');
+    const [email,setEmail] = useState('');
+    const [password,setPassword] = useState('');
+    const [direccion,setDireccion] = useState('');
+    const [ciudad,setCiudad] = useState('');
+    const [phone,setPhone] = useState('');
+    const [Birth,setBirth] = useState('');
+
+
+    const onSubmit = async () => {
+        console.log("Dato:", nombre, apellido, email, password, direccion, ciudad, phone, Birth); // Asegúrate de que los valores estén aquí
+    
+        try {
+            const response = await axios.post('http://192.168.38.3:4000/register', {
+                name: nombre,
+                lastname: apellido,
+                email: email,
+                pass: password,
+                address: direccion,
+                city: ciudad,
+                phone: phone,
+                birth: Birth
+            });
+    
+            if (response.status === 201) {
+                Alert.alert('Registro exitoso');
+                Navigation.navigate('Login');
+            } else {
+                Alert.alert('Error en el registro', response.data.message);
+            }
+        } catch (error) {
+            console.error("Error en el registro:", error);
+            Alert.alert('Error', 'No se pudo completar el registro. Inténtalo de nuevo.');
+        }
+    };
+    
 
 
     return (
@@ -16,22 +55,22 @@ const Register = () => {
                 <Text style={styles.titulo}>Registrate</Text>
 
                 <View style={{flexDirection: 'row', width: '80%'}}>
-                    <TextInput style={styles.input} placeholder='Nombre(s)' keyboardType='email-address'/>
-                    <TextInput style={styles.input} placeholder='Apellidos(s)' />
+                    <TextInput style={styles.input} placeholder='Nombre(s)' keyboardType='email-address' onChangeText={setNombre}/>
+                    <TextInput style={styles.input} placeholder='Apellidos(s)' onChangeText={setApellido}/>
                 </View>
 
                 <View style={{flexDirection: 'row', width: '80%'}}>
-                    <TextInput style={styles.input} placeholder='Correo Electronico' keyboardType='email-address'/>
-                    <TextInput style={styles.input} placeholder='Contraseña' />
+                    <TextInput style={styles.input} placeholder='Correo Electronico' keyboardType='email-address' onChangeText={setEmail}/>
+                    <TextInput style={styles.input} placeholder='Contraseña' onChangeText={setPassword} />
                 </View>
 
                 <View style={{flexDirection: 'row', width: '80%'}}>
-                    <TextInput style={styles.input} placeholder='Ciudad' keyboardType='email-address'/>
-                    <TextInput style={styles.input} placeholder='Fecha De Nacimiento' />
+                    <TextInput style={styles.input} placeholder='Ciudad' keyboardType='email-address' onChangeText={setCiudad}/>
+                    <TextInput style={styles.input} placeholder='Fecha De Nacimiento' onChangeText={setBirth}/>
                 </View>
                 
 
-                <TouchableOpacity style={styles.boton} onPress={()=> Navigation.navigate('Login')}>
+                <TouchableOpacity style={styles.boton} onPress={onSubmit}>
                     <Text style={styles.textoBtn}>
                     Registrar
                     </Text>
