@@ -14,7 +14,7 @@ const Login = () => {
     const onSubmit = async (data) => {
         console.log('Formulario enviado:', email);
         try {
-          const response = await axios.post('http://192.168.38.3:4000/login', {
+          const response = await axios.post('http://localhost:4000/login', {
             email: email,
             pass: password,
           });

@@ -1,114 +1,166 @@
-import React from 'react'
-import {View, Text, ScrollView, StyleSheet, TouchableHighlight} from 'react-native'
-import Navbar from '../components/Navbar'
-import { useFonts } from 'expo-font'
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableHighlight } from 'react-native';
+import Navbar from '../components/Navbar';
+import { useFonts } from 'expo-font';
 import { useNavigation } from '@react-navigation/native';
 import ProductContainer from '../components/ProductContainer';
 import SubastaContainer from '../components/SubastaContainer';
 import VentaContainer from '../components/VentaContainer';
-
-//iconos
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Dashboard = () => {
+    const navigation = useNavigation();
+    const [productos, setProductos] = useState([]);
+    const [subastas, setSubastas] = useState([]);
+    const [ventas, setVentas] = useState([]);
+    const [loading, setLoading] = useState(true); // Estado para el loading
 
-    const navigation = useNavigation()
-
-    //Fuentes Personalizadas
+    // Cargar fuentes personalizadas
     const [fontsLoaded] = useFonts({
         MadeTommy: require('../assets/fonts/MADE TOMMY Regular_PERSONAL USE.otf'),
         MadeTommyBold: require('../assets/fonts/MADE TOMMY Bold_PERSONAL USE.otf'),
         MalgunGothic: require('../assets/fonts/malgun-gothic.ttf'),
     });
 
-    
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const userId = await AsyncStorage.getItem('userId'); // Obtener el ID del usuario
+                const token = await AsyncStorage.getItem('userToken'); // Obtener el token
+
+                console.log("UserToken:",token);
+                console.log("UserId:", userId);
+
+                if (userId && token) {
+                    // Llamadas a la API con el userId y token
+                    const productosResponse = await axios.get(`http://localhost:4000/products/${userId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setProductos(productosResponse.data);
+
+                    const subastasResponse = await axios.get(`http://localhost:4000/auctions/${userId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setSubastas(subastasResponse.data);
+
+                    const ventasResponse = await axios.get(`http://localhost:4000/sales/${userId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setVentas(ventasResponse.data);
+                }
+            } catch (error) {
+                console.error('Error al obtener los datos:', error);
+            } finally {
+                setLoading(false); // Finaliza el loading después de las solicitudes
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return <Text>Cargando...</Text>; // Mostrar texto de carga mientras se obtienen los datos
+    }
 
     return (
-        <View style={{flex:1}}>
-            <Navbar/>
+        <View style={{ flex: 1 }}>
+            <Navbar />
 
             <ScrollView style={styles.scroll}>
-            {/* <View style={{backgroundColor: '#fffff3'}}> */}
                 <Text style={styles.tituloBold}>DASHBOARD</Text>
-                
-
-                <View style={{flexDirection: 'row', justifyContent: 'flex-start', marginLeft:'8%', marginBottom: 30}}>
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginLeft: '8%', marginBottom: 30 }}>
                     <Text style={styles.tituloBold2}>Bienvenido, </Text>
-                    <Text style={styles.tituloRegular}>Nombre Usuario!</Text>
+                    <Text style={styles.tituloRegular}>Nombre Usuario!</Text> {/* Aquí puedes mostrar el nombre del usuario si lo tienes */}
                 </View>
 
                 <View style={styles.boxContainer}>
-
+                    {/* Mis Productos */}
                     <View style={styles.dashboardContainer}>
-                        
-                        <TouchableHighlight style={styles.tituloProductosContainer} onPress={()=> navigation.navigate('Productos')}>
-                            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '80%' , alignItems: 'center'}}>
-                                <Text style={{fontSize: 20, color: 'white'}}>Mis Productos</Text>
+                        <TouchableHighlight style={styles.tituloProductosContainer} onPress={() => navigation.navigate('Productos')}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '80%', alignItems: 'center' }}>
+                                <Text style={{ fontSize: 20, color: 'white' }}>Mis Productos</Text>
                                 <MaterialIcons name="navigate-next" size={40} color="white" />
                             </View>
-                            
                         </TouchableHighlight>
 
-                        <ScrollView  style={styles.scrollContainer} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
-                            <ProductContainer nombre="Nombre Producto" cantidad={10} imageSource={require('../assets/producto.jpg')}/>
-                            <ProductContainer nombre="Nombre Producto" cantidad={1} imageSource={require('../assets/producto3.jpg')}/>
-                            <ProductContainer nombre="Nombre Producto" cantidad={20} imageSource={require('../assets/producto4.jpg')}/>
-                            <ProductContainer nombre="Nombre Producto" cantidad={2} imageSource={require('../assets/producto5.jpg')}/>
-                            <ProductContainer nombre="Nombre Producto" cantidad={16} imageSource={require('../assets/producto2.jpeg')}/>
+                        <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+                            {productos.length > 0 ? (
+                                productos.map((producto, index) => (
+                                    <ProductContainer
+                                        key={index}
+                                        nombre={producto.title}
+                                        cantidad={producto.firstprice} // Ajusta según tu modelo de datos
+                                        imageSource={{ uri: producto.image }} // Suponiendo que tienes la URL de la imagen
+                                    />
+                                ))
+                            ) : (
+                                <Text>No tienes productos.</Text>
+                            )}
                         </ScrollView>
-
-                        
                     </View>
 
+                    {/* Mis Subastas */}
                     <View style={styles.dashboardContainer}>
-                        <TouchableHighlight style={styles.tituloSubastasContainer} onPress={()=> navigation.navigate('Subastas')}>
-                            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '80%' , alignItems: 'center'}}>
-                                <Text style={{fontSize: 20, color: 'white'}}>Mis Subastas</Text>
+                        <TouchableHighlight style={styles.tituloSubastasContainer} onPress={() => navigation.navigate('Subastas')}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '80%', alignItems: 'center' }}>
+                                <Text style={{ fontSize: 20, color: 'white' }}>Mis Subastas</Text>
                                 <MaterialIcons name="navigate-next" size={40} color="white" />
                             </View>
-                            
                         </TouchableHighlight>
 
-                        <ScrollView  style={styles.scrollContainer} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
-                            <SubastaContainer nombre="Nombre Producto" oferta={150} tiempo={'05:22'} imageSource={require('../assets/producto.jpg')}/>
-                            <SubastaContainer nombre="Nombre Producto" oferta={1200} tiempo={'23:05'} imageSource={require('../assets/producto3.jpg')}/>
-                            <SubastaContainer nombre="Nombre Producto" oferta={270} tiempo={'10:36'} imageSource={require('../assets/producto4.jpg')}/>
-                            <SubastaContainer nombre="Nombre Producto" oferta={530} tiempo={'24:43:10'} imageSource={require('../assets/producto5.jpg')}/>
-                            <SubastaContainer nombre="Nombre Producto" oferta={970} tiempo={'1:10:9'} imageSource={require('../assets/producto2.jpeg')}/>
-
+                        <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+                            {subastas.length > 0 ? (
+                                subastas.map((subasta, index) => (
+                                    <SubastaContainer
+                                        key={index}
+                                        nombre={subasta.artworkid} // Ajusta según el modelo de datos
+                                        oferta={subasta.currentBid}
+                                        tiempo={subasta.endedtime}
+                                        imageSource={{ uri: subasta.artworkid.image }} // Suponiendo que tienes la URL de la imagen
+                                    />
+                                ))
+                            ) : (
+                                <Text>No tienes subastas.</Text>
+                            )}
                         </ScrollView>
-
-                        
                     </View>
 
+                    {/* Mis Ventas */}
                     <View style={styles.dashboardContainer}>
-                        <TouchableHighlight style={styles.tituloVentasContainer} onPress={()=> navigation.navigate('Ventas')}>
-                            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '80%', alignItems: 'center'}}>
-                                <Text style={{fontSize: 20, color: 'white'}}>Ventas</Text>
+                        <TouchableHighlight style={styles.tituloVentasContainer} onPress={() => navigation.navigate('Ventas')}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '80%', alignItems: 'center' }}>
+                                <Text style={{ fontSize: 20, color: 'white' }}>Mis Ventas</Text>
                                 <MaterialIcons name="navigate-next" size={40} color="white" />
                             </View>
-                            
                         </TouchableHighlight>
 
-                        <ScrollView  style={styles.scrollContainer} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
-                            <VentaContainer nombre="Nombre Producto" cantidad={10} imageSource={require('../assets/producto.jpg')}/>
-                            <VentaContainer nombre="Nombre Producto" cantidad={1} imageSource={require('../assets/producto3.jpg')}/>
-                            <VentaContainer nombre="Nombre Producto" cantidad={20} imageSource={require('../assets/producto4.jpg')}/>
-                            <VentaContainer nombre="Nombre Producto" cantidad={2} imageSource={require('../assets/producto5.jpg')}/>
-                            <VentaContainer nombre="Nombre Producto" cantidad={16} imageSource={require('../assets/producto2.jpeg')}/>
+                        <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+                            {ventas.length > 0 ? (
+                                ventas.map((venta, index) => (
+                                    <VentaContainer
+                                        key={index}
+                                        nombre={venta.title || 'Nombre Producto'} // Asegúrate de acceder correctamente a los datos
+                                        cantidad={venta.total_price || 1} // Total de la venta o cantidad
+                                        comprador={venta.name || 'Fidel Orozco'} // Asumiendo que tienes un campo comprador
+                                        ciudad={venta.city || 'San Luis Rio Colorado'} // Ciudad
+                                        direccion={venta.address || 'Colima y 17'} // Dirección
+                                        imageSource={{ uri: venta.artworkid?.image || 'defaultImage.jpg' }} // Asegúrate de tener la imagen asociada
+                                    />
+                                ))
+                            ) : (
+                                <Text>No tienes ventas.</Text>
+                            )}
                         </ScrollView>
-                        
                     </View>
                 </View>
-
-            {/* </View> */}
             </ScrollView>
-
         </View>
-    )
-}
+    );
+};
 
-export default Dashboard
+export default Dashboard;
 
 const styles = StyleSheet.create({ 
     tituloBold: {
@@ -126,62 +178,50 @@ const styles = StyleSheet.create({
     tituloRegular: {
         fontSize: 20,
         color: '#1A1A1A'
-    },   
-    scroll:{
-        width: '100%', // Asegura que el ScrollView ocupe todo el ancho
-        height: '100vh', // Usa el 100% de la altura de la ventana para que se active el scroll
+    },
+    scroll: {
+        width: '100%',
+        height: '100vh',
         backgroundColor: '#fffff3',
-        paddingBottom: '15%',  // Ajusta el padding al final si es necesario
+        paddingBottom: '15%',
         overflowY: 'auto',
     },
-    boxContainer:{
+    boxContainer: {
         width: '85%',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignSelf: 'center'
     },
-    dashboardContainer:{
-        width: '30%', 
+    dashboardContainer: {
+        width: '30%',
         height: '60vh',
         paddingBottom: '1%',
         marginHorizontal: 10,
         borderRadius: 20,
         backgroundColor: '#FFF9F9',
-        borderRadius: 20,
         boxShadow: '0px 5px 10px rgba(0, 0, 0, 0.3)'
     },
-    tituloProductosContainer:{
+    tituloProductosContainer: {
         height: 70,
-        width: '100%',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
         backgroundColor: '#e3298f',
         justifyContent: 'center',
         alignItems: 'center'
     },
-    tituloSubastasContainer:{
+    tituloSubastasContainer: {
         height: 70,
-        width: '100%',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
         backgroundColor: '#1a1a1a',
         justifyContent: 'center',
         alignItems: 'center'
     },
-    tituloVentasContainer:{
+    tituloVentasContainer: {
         height: 70,
-        width: '100%',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
         backgroundColor: '#44634e',
         justifyContent: 'center',
         alignItems: 'center'
     },
-    scrollContainer:{
+    scrollContainer: {
         width: '95%',
         alignSelf: 'center',
         paddingVertical: 5
     }
-
-    
 });

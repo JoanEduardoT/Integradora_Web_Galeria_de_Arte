@@ -21,7 +21,7 @@ const Register = () => {
         console.log("Dato:", nombre, apellido, email, password, direccion, ciudad, phone, Birth); // Asegúrate de que los valores estén aquí
     
         try {
-            const response = await axios.post('http://192.168.38.3:4000/register', {
+            const response = await axios.post('http://localhost:4000/register', {
                 name: nombre,
                 lastname: apellido,
                 email: email,

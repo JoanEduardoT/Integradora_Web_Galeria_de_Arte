@@ -4,14 +4,18 @@ import Navbar from '../components/Navbar'
 import { FlatList, TextInput } from 'react-native-web'
 import { useState, useEffect } from 'react'
 import * as ImagePicker from 'expo-image-picker';
-import ProductList from '../components/ProductList'
-import ProductCard from '../components/ProductCard'
+import * as FileSystem from 'expo-file-system';
+import ProductList from '../components/ProductList';
+import ProductCard from '../components/ProductCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios'
+
+import {Picker} from '@react-native-picker/picker';
+
 
 //iconos
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-
-
 
 const Productos = () => {
 
@@ -32,31 +36,76 @@ const Productos = () => {
     [descripcion, setDescripcion] = useState('');
     [image, setImage] = useState('');
 
-    //Creacion Producto
-    const handleSubmit = () => {
-        if (nombre == '' || precio == '' || cantidad == '' || descripcion == ''){
-            alert('No se puede crear el producto')
+    //Mostrar Productos
+    const fetchProductos = async () => {
+        try {
+            const userId = await AsyncStorage.getItem('userId'); // Obtener el ID del usuario
+            const token = await AsyncStorage.getItem('userToken'); // Obtener el token
+            
+            console.log("UserToken:",token);
+            console.log("UserId:", userId);
 
-            setNombre('');
-            setCategoria('');
-            setPrecio('');
-            setCantidad('');
-            setDescripcion('');
-            setImage('');
-        }else{
-            const producto = {nombre, categoria, precio, cantidad, descripcion, image}
-
-            setListaProductos(prevProductos => [...prevProductos, producto])
-
-            setNombre('');
-            setCategoria('');
-            setPrecio('');
-            setCantidad('');
-            setDescripcion('');
-            setImage('');
+            const response = await axios.get(`http://localhost:4000/products/${userId}`,{
+                headers: { Authorization: `Bearer ${token}` },
+            });// Asegúrate de que el backend está corriendo
+            setListaProductos(response.data);
+            console.log(response.data)
+        } catch (error) {
+            console.error('Error al obtener productos:', error);
         }
-        
-    }
+    };
+
+    // Llamar a la API cuando se carga el componente
+    useEffect(() => {
+        fetchProductos();
+    }, []);
+
+    //Creacion Producto
+    const handleSubmit = async () => {
+        if (nombre === '' || precio === '' || cantidad === '' || descripcion === ''|| categoria === '' || !image) {
+            Alert.alert('Error', 'Todos los campos son obligatorios');
+            return;
+        }
+    
+        try {
+            const userId = await AsyncStorage.getItem('userId'); // Obtener el ID del usuario
+    
+            if (!userId) {
+                Alert.alert('Error', 'No se encontró el ID del usuario');
+                return;
+            }
+    
+            const formData = {
+                artwork_type: 'Subasta', // O 'Directa'
+                title: nombre,
+                descripcion: descripcion,
+                image: image, // La imagen ya está en Base64
+                firstprice: parseFloat(precio),
+                artistid: userId,  
+                categoriaid: categoria
+            };
+    
+            const response = await axios.post('http://localhost:4000/Addartworks', formData);
+            console.log('Producto registrado:', response.data);
+            Alert.alert('Éxito', 'Producto registrado correctamente');
+    
+            setListaProductos(prevProductos => [...prevProductos, formData]);
+    
+            // Limpiar los inputs
+            setNombre('');
+            setCategoria('');
+            setPrecio('');
+            setCantidad('');
+            setDescripcion('');
+            setImage('');
+    
+        } catch (error) {
+            console.error('Error al registrar el producto:', error.response ? error.response.data : error.message);
+            Alert.alert('Error', 'No se pudo registrar el producto');
+        }
+    };
+    
+    
 
     const handleDelete = (index) => {
         setListaProductos(prevProductos => prevProductos.filter((_, i) => i !== index));
@@ -64,14 +113,18 @@ const Productos = () => {
 
 
     //ImagePicker
-    const handleImagePickerPress = async() => {
+    const handleImagePickerPress = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-        quality: 1,})
-
-        if (!result.canceled){
-            setImage(result.assets[0].uri)
+            quality: 1,
+            allowsEditing: true,
+            base64: true // Activar conversión automática a Base64
+        });
+    
+        if (!result.canceled) {
+            setImage(`data:image/jpeg;base64,${result.assets[0].base64}`); // Guardar en estado
         }
-    }
+    };
+    
 
 
     return (
@@ -84,12 +137,31 @@ const Productos = () => {
                     <View style={{ flexDirection: 'row', width: '80%', alignSelf: 'center', marginVertical: '5vh', }}>
                         <View style={{width: '80%'}}>
                             
-                                <TextInput style={styles.input} 
-                                placeholder='Nombre del Producto' 
-                                value={nombre}
-                                onChangeText={setNombre}
-                                placeholderTextColor={'#634455'}/>
+                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                    
+                                    <TextInput style={styles.inputDoble} 
+                                    placeholder='Nombre Del Producto' 
+                                    value={nombre}
+                                    onChangeText={setNombre}
+                                    placeholderTextColor={'#634455'}/>
 
+                                    <Picker
+                                    style={styles.selectDoble}
+                                    selectedValue={categoria}
+                                    selectionColor={'#634455'}
+                                    onValueChange={(itemValue, itemIndex) =>
+                                        setCategoria(itemValue)
+                                    }>
+                                        <Picker.Item label="Pintura" value="1" />
+                                        <Picker.Item label="Escultura" value="2" />
+                                        <Picker.Item label="Fotografia" value="3" />
+                                        <Picker.Item label="Arte Digital" value="4" />
+                                        <Picker.Item label="Instalacion" value="5" />
+                                    </Picker>
+
+
+                                </View>
+                            
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                     
                                     <TextInput style={styles.inputDoble} 
@@ -104,8 +176,7 @@ const Productos = () => {
                                     onChangeText={setCantidad}
                                     placeholderTextColor={'#634455'}/>
                                 </View>
-                                
-                            
+
 
                             <TextInput multiline={true} 
                             style={styles.inputDescripcion} 
@@ -159,14 +230,12 @@ const Productos = () => {
                             data={listaProductos}
                             renderItem={({item, index}) => (
                                 <ProductList
-                                    nombre={item.nombre}
-                                    precio={item.precio}
-                                    cantidad={item.cantidad}
-                                    categoria={'Pendiente'}
-                                    descripcion={item.descripcion}
-                                    imageSource={item.image}
-                                    onDelete={() => handleDelete(index)}
-                                />
+                                nombre={item.title}
+                                precio={item.firstprice}
+                                descripcion={item.descripcion}
+                                imageSource={{uri: item.image}}
+                                onDelete={() => handleDelete(index)}
+                            />
                             )}
                             keyExtractor={(item, index) => index.toString()}
                         />
@@ -174,12 +243,13 @@ const Productos = () => {
 
                     {vista === 'Mosaico' && listaProductos.map((item, index)=> (
                         <ProductCard 
-                            nombre={item.nombre}
-                            precio={item.precio}
-                            cantidad={item.cantidad}
-                            categoria={'Pendiente'}
-                            imageSource={item.image}
-                            onDelete={() => handleDelete(index)}/>
+                        nombre={item.title}
+                        precio={item.firstprice}
+                        descripcion={item.descripcion}
+                        imageSource={{uri: item.image}}
+                        onDelete={() => handleDelete(index)}
+                            />
+                            
                     ))}
 
                     </View>
@@ -194,6 +264,8 @@ const Productos = () => {
 }
 
 export default Productos
+
+
 
 const styles = StyleSheet.create({
     scroll:{
@@ -239,6 +311,16 @@ const styles = StyleSheet.create({
     },
     inputDoble:{
         backgroundColor: '#FFF9F9',
+        width: '49%',
+        height: 60,
+        paddingHorizontal: 20,
+        marginBottom: 20,
+        borderRadius: 10,
+        boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)',
+    },
+    selectDoble:{
+        backgroundColor: '#FFF9F9',
+        borderColor: 'transparent',
         width: '49%',
         height: 60,
         paddingHorizontal: 20,
@@ -304,4 +386,6 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     }
 })
+
+
 

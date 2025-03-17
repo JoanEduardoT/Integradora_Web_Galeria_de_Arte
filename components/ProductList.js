@@ -10,7 +10,7 @@ const ProductList = ({nombre, precio, cantidad, descripcion, imageSource, onDele
         <TouchableOpacity style={styles.containerPrincipal}>
 
             <View style={styles.containerSecundario}>
-                {imageSource && (<Image source={imageSource} style={styles.image}/>)}
+                {imageSource && (<Image source={{ uri: imageSource }} style={styles.image}/>)}
 
                 <View>
                     <Text style={styles.titulo}>{nombre}</Text>
@@ -97,6 +97,4 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     }
-    
-
 })
