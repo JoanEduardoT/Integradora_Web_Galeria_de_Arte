@@ -6,6 +6,7 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 
 
+
 const app = express();
 
 /* const db = mysql.createPool({
@@ -43,7 +44,18 @@ app.listen(4000, () => {
 });
 
 
+//-------------------------------------------------------------------------------------
 
+app.get('/user/:id', (req, res) => {
+    const { id } = req.params;
+    db.query('SELECT * FROM users WHERE ID = ?', [id], (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.send(results);
+    });
+});
+
+
+//--------------------------------------------------------------------------------------
 app.post('/register', (req, res) => {
     const { name, lastname, email, pass, address, city, birth, phone } = req.body;
 
@@ -107,5 +119,94 @@ app.post('/login', (req, res) => {
                 user: { id: user.id }
             });
         });
+    });
+});
+
+
+//------------------------------------------------------------------------------------------------------------------------
+
+app.post('/Addartworks', (req, res) => {
+    const { id } = req.params;
+    const { artwork_type, title, descripcion, image, firstprice, artistid, categoriaid } = req.body;
+
+    if (!title || !firstprice || !artistid || !categoriaid || !image) {
+        return res.status(400).json({ message: 'Todos los campos son requeridos' });
+    }
+
+    const sql = 'INSERT INTO artworks (artwork_type, title, descripcion, image, firstprice, artistid, categoriaid) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    
+    db.query(sql, [artwork_type, title, descripcion, image, firstprice, artistid, categoriaid], (err, result) => {
+        if (err) {
+            console.error('Error al insertar el producto:', err);
+            return res.status(500).json({ message: 'Error al registrar el producto' });
+        }
+        res.status(201).json({ message: 'Producto registrado exitosamente', id: result.insertId });
+    });
+});
+
+
+app.get('/artworks', (req, res) => {
+    db.query('SELECT * FROM artworks', (err, results) => {
+        if (err) {
+            console.error('Error al obtener los productos:', err);
+            return res.status(500).json({ message: 'Error al obtener los productos' });
+        }
+
+        // Convertir la imagen BLOB a Base64
+        const artworks = results.map(artwork => {
+            let base64Image = artwork.image ? artwork.image.toString('base64') : null;
+            if (base64Image) {
+                base64Image = `data:image/jpeg;base64,${base64Image}`;
+            }
+
+            return {
+                ...artwork,
+                image: base64Image
+            };
+        });
+
+        res.status(200).json(artworks);
+    });
+});
+
+
+
+app.get('/products/:id', (req, res) => {
+    const { id } = req.params;
+    db.query('SELECT * FROM artworks WHERE artistid = ?', [id], (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.send(results);
+    });
+});
+
+app.get('/auctions/:id', (req, res) => {
+    const { id } = req.params;
+    db.query('SELECT * FROM auctions WHERE artistid = ?', [id], (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.send(results);
+    });
+});
+
+app.get('/products/:id', (req, res) => {
+    const { id } = req.params;
+    db.query('SELECT * FROM artworks WHERE artistid = ?', [id], (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.send(results);
+    });
+});
+app.get('/sales/:id', (req, res) => {
+    const { id } = req.params;
+
+    const query=`
+    Select d.*, ar.*, at.*
+    FROM direct_transaction d
+    JOIN artworks ar ON d.artworkId = ar.id
+    JOIN users at ON ar.artistId = at.id
+    WHERE d.artistid = ?
+    `
+
+    db.query(query, [id], (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.send(results);
     });
 });
