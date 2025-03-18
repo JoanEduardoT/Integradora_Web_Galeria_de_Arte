@@ -201,8 +201,15 @@ const Subastas = () => {
                             <SubastaList
                             nombre={item.artworkid}
                             precio={item.currentBid}
-                            tiempo={item.endtime}
+                            tiempo={new Date(item.endedtime).toLocaleString('es-MX', {
+                                year: 'numeric',
+                                month: 'numeric',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            })}
                             imageSource={{uri: item.image}}
+                            descripcion={item.descripcion}
                             onDelete={() => handleDelete(index)}
                             />
                         )}
@@ -210,9 +217,7 @@ const Subastas = () => {
                         />
 
                     </View>
-                    
-
-                    
+                        
                 
             </ScrollView>
             

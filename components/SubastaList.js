@@ -15,7 +15,7 @@ const SubastaList = ({nombre, precio, tiempo, descripcion, imageSource, onDelete
                 <View>
                     <Text style={styles.titulo}>{nombre}</Text>
                     <Text style={styles.precio}>Oferta Actual: ${precio} MXN</Text>
-                    <Text style={styles.tiempo}>Tiempo Restante: {tiempo}</Text>
+                    <Text style={styles.tiempo}>Vencimiento: {tiempo}</Text>
 
                     <Text style={styles.titulo2}>Descripcion</Text>
                     <View>

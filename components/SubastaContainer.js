@@ -14,7 +14,7 @@ const SubastaContainer = ({nombre, tiempo, oferta, imageSource}) => {
                 <View>
                     <Text style={styles.titulo}>{nombre}</Text>
                     <Text style={styles.subtitulo}>Oferta Actual: ${oferta} MXN</Text>
-                    <Text style={styles.subtitulo}>Tiempo Restante: {tiempo}</Text>
+                    <Text style={styles.subtitulo}>Vencimiento: {tiempo}</Text>
                 </View>
             </View>
             

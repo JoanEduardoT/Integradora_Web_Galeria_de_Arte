@@ -15,7 +15,9 @@ const Dashboard = () => {
     const [productos, setProductos] = useState([]);
     const [subastas, setSubastas] = useState([]);
     const [ventas, setVentas] = useState([]);
-    const [loading, setLoading] = useState(true); // Estado para el loading
+    const [loading, setLoading] = useState(true);
+    const [userData, setUserData] = useState(null)
+    
 
     // Cargar fuentes personalizadas
     const [fontsLoaded] = useFonts({
@@ -49,6 +51,16 @@ const Dashboard = () => {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     setVentas(ventasResponse.data);
+
+                    const response = await axios.get(`http://localhost:4000/user/${userId}`, {
+                        headers: {
+                          Authorization: `Bearer ${token}`, // En caso de usar JWT o algún token
+                        },
+                      })
+              
+                      console.log(response.data[0])
+                      setUserData(response.data[0])
+
                 }
             } catch (error) {
                 console.error('Error al obtener los datos:', error);
@@ -72,7 +84,7 @@ const Dashboard = () => {
                 <Text style={styles.tituloBold}>DASHBOARD</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginLeft: '8%', marginBottom: 30 }}>
                     <Text style={styles.tituloBold2}>Bienvenido, </Text>
-                    <Text style={styles.tituloRegular}>Nombre Usuario!</Text> {/* Aquí puedes mostrar el nombre del usuario si lo tienes */}
+                    <Text style={styles.tituloRegular}>{userData.name} {userData.lastname}!</Text> {/* Aquí puedes mostrar el nombre del usuario si lo tienes */}
                 </View>
 
                 <View style={styles.boxContainer}>
@@ -117,7 +129,13 @@ const Dashboard = () => {
                                         key={index}
                                         nombre={subasta.artworkid} // Ajusta según el modelo de datos
                                         oferta={subasta.currentBid}
-                                        tiempo={subasta.endedtime}
+                                        tiempo={new Date(subasta.endedtime).toLocaleString('es-MX', {
+                                            year: 'numeric',
+                                            month: 'numeric',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                        })}
                                         imageSource={{ uri: subasta.image }} // Suponiendo que tienes la URL de la imagen
                                     />
                                 ))
