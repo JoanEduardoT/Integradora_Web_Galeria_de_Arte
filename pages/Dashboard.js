@@ -96,7 +96,7 @@ const Dashboard = () => {
                                     />
                                 ))
                             ) : (
-                                <Text>No tienes productos.</Text>
+                                <Text style={{margin: 15}}>No tienes productos.</Text>
                             )}
                         </ScrollView>
                     </View>
@@ -122,7 +122,7 @@ const Dashboard = () => {
                                     />
                                 ))
                             ) : (
-                                <Text>No tienes subastas.</Text>
+                                <Text style={{margin: 15}}>No tienes subastas.</Text>
                             )}
                         </ScrollView>
                     </View>
@@ -146,11 +146,11 @@ const Dashboard = () => {
                                         comprador={venta.name || 'Fidel Orozco'} // Asumiendo que tienes un campo comprador
                                         ciudad={venta.city || 'San Luis Rio Colorado'} // Ciudad
                                         direccion={venta.address || 'Colima y 17'} // Dirección
-                                        imageSource={{ uri: venta.artworkid?.image || 'defaultImage.jpg' }} // Asegúrate de tener la imagen asociada
+                                        imageSource={{ uri: venta.image || 'defaultImage.jpg' }} // Asegúrate de tener la imagen asociada
                                     />
                                 ))
                             ) : (
-                                <Text>No tienes ventas.</Text>
+                                <Text style={{margin: 15}}>No tienes ventas.</Text>
                             )}
                         </ScrollView>
                     </View>
@@ -203,6 +203,8 @@ const styles = StyleSheet.create({
     },
     tituloProductosContainer: {
         height: 70,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
         backgroundColor: '#e3298f',
         justifyContent: 'center',
         alignItems: 'center'
@@ -210,12 +212,16 @@ const styles = StyleSheet.create({
     tituloSubastasContainer: {
         height: 70,
         backgroundColor: '#1a1a1a',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
         justifyContent: 'center',
         alignItems: 'center'
     },
     tituloVentasContainer: {
         height: 70,
         backgroundColor: '#44634e',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
         justifyContent: 'center',
         alignItems: 'center'
     },
