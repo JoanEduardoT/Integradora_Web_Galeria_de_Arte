@@ -145,6 +145,25 @@ app.post('/Addartworks', (req, res) => {
 });
 
 
+app.post('/Addactions', (req, res) => {
+    const {artistid,title,currentBid,endedtime,descripcion,image} = req.body;
+
+    if (!title || !currentBid || !artistid || !image || !endedtime || !descripcion) {
+        return res.status(400).json({ message: 'Todos los campos son requeridos' });
+    }
+
+    const sql = 'INSERT INTO auctions (artistid,title,currentBid,endedtime,descripcion,image) VALUES (?,?,?,?,?,?)';
+    
+    db.query(sql, [artistid,title,currentBid,endedtime,descripcion,image], (err, result) => {
+        if (err) {
+            console.error('Error al insertar el producto:', err);
+            return res.status(500).json({ message: 'Error al registrar el producto' });
+        }
+        res.status(201).json({ message: 'Producto registrado exitosamente', id: result.insertId });
+    });
+});
+
+
 app.get('/artworks', (req, res) => {
     db.query('SELECT * FROM artworks', (err, results) => {
         if (err) {
@@ -169,7 +188,7 @@ app.get('/artworks', (req, res) => {
     });
 });
 
-
+//------------------------------------------------------------------------------------------------------------------------------------------------------
 
 app.get('/products/:id', (req, res) => {
     const { id } = req.params;

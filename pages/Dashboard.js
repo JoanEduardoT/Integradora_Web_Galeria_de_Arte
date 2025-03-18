@@ -118,7 +118,7 @@ const Dashboard = () => {
                                         nombre={subasta.artworkid} // Ajusta según el modelo de datos
                                         oferta={subasta.currentBid}
                                         tiempo={subasta.endedtime}
-                                        imageSource={{ uri: subasta.artworkid.image }} // Suponiendo que tienes la URL de la imagen
+                                        imageSource={{ uri: subasta.image }} // Suponiendo que tienes la URL de la imagen
                                     />
                                 ))
                             ) : (

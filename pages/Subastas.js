@@ -1,9 +1,11 @@
-import React from 'react'
+import React,{useEffect,useState} from 'react'
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert } from 'react-native'
 import Navbar from '../components/Navbar'
 import { FlatList, TextInput } from 'react-native-web'
-import { useState, useEffect } from 'react'
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
 
 //iconos
 import Feather from '@expo/vector-icons/Feather';
@@ -15,36 +17,91 @@ const Subastas = () => {
     const [listaSubastas, setListaSubastas] = useState([]);
 
     [nombre, setNombre] = useState('');
-    [categoria, setCategoria] = useState('');
     [precio, setPrecio] = useState('');
     [tiempo, setTiempo] = useState('');
     [descripcion, setDescripcion] = useState('');
     [image, setImage] = useState('');
+    [loading, setLoading] = useState(true); // Estado para el loading
+   
+    
 
-    const handleSubmit = () => {
-        if (nombre == '' || precio == '' || tiempo == '' || descripcion == ''){
-            alert('No se puede crear el producto')
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const userId = await AsyncStorage.getItem('userId'); // Obtener el ID del usuario
+                const token = await AsyncStorage.getItem('userToken'); // Obtener el token
 
-            setNombre('');
-            setCategoria('');
-            setPrecio('');
-            setTiempo('');
-            setDescripcion('');
-            setImage('');
-        }else{
-            const subasta = {nombre, precio, tiempo, descripcion, image}
+                console.log("UserToken:",token);
+                console.log("UserId:", userId);
 
-            setListaSubastas(prevSubastas => [...prevSubastas, subasta])
+                if (userId && token) {
+                    const subastasResponse = await axios.get(`http://localhost:4000/auctions/${userId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setListaSubastas(subastasResponse.data);
+                    console.log(subastasResponse.data)
+                }
+            } catch (error) {
+                console.error('Error al obtener los datos:', error);
+            } finally {
+                setLoading(false); // Finaliza el loading después de las solicitudes
+            }
+        };
 
-            setNombre('');
-            setCategoria('');
-            setPrecio('');
-            setTiempo('');
-            setDescripcion('');
-            setImage('');
-        }
-        
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return <Text>Cargando...</Text>; // Mostrar texto de carga mientras se obtienen los datos
     }
+
+
+     //Creacion Producto
+     const handleSubmit = async () => {
+        if (nombre === '' || precio === '' || tiempo === '' || descripcion === '' || !image) {
+            Alert.alert('Error', 'Todos los campos son obligatorios');
+            return;
+        }
+    
+        try {
+            const userId = await AsyncStorage.getItem('userId'); // Obtener el ID del usuario
+    
+            if (!userId) {
+                Alert.alert('Error', 'No se encontró el ID del usuario');
+                return;
+            }
+    
+            const formData = {
+                title: nombre,
+                descripcion: descripcion,
+                image: image, 
+                currentBid:parseFloat(precio),
+                artistid: userId,  
+                endedtime:tiempo
+            };
+    
+            const response = await axios.post('http://localhost:4000/Addactions', formData);
+            console.log("datos enviados:", formData);
+            console.log('Producto registrado:', response.data);
+            Alert.alert('Éxito', 'Producto registrado correctamente');
+    
+            setListaProductos(prevProductos => [...prevProductos, formData]);
+    
+            // Limpiar los inputs
+            setNombre('');
+            setPrecio('');
+            setCantidad('');
+            setTiempo('');
+            setDescripcion('');
+            setImage('');
+    
+        } catch (error) {
+            console.error('Error al registrar el producto:', error.response ? error.response.data : error.message);
+            Alert.alert('Error', 'No se pudo registrar el producto');
+        }
+    };
+    
+    
 
     const handleDelete = (index) => {
         setListaSubastas(prevSubastas => prevSubastas.filter((_, i) => i !== index));
@@ -54,15 +111,19 @@ const Subastas = () => {
         console.log(listaProductos);
     }, [listaProductos]); */ 
 
-    //ImagePicker
-    const handleImagePickerPress = async() => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-        quality: 1,})
 
-        if (!result.canceled){
-            setImage(result.assets[0].uri)
+    //ImagePicker
+    const handleImagePickerPress = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            quality: 1,
+            allowsEditing: true,
+            base64: true // Activar conversión automática a Base64
+        });
+    
+        if (!result.canceled) {
+            setImage(`data:image/jpeg;base64,${result.assets[0].base64}`); // Guardar en estado
         }
-    }
+    };
 
 
     return (
@@ -138,11 +199,10 @@ const Subastas = () => {
                         renderItem={({item, index}) => (
                             
                             <SubastaList
-                            nombre={item.nombre}
-                            precio={item.precio}
-                            tiempo={item.tiempo}
-                            descripcion={item.descripcion}
-                            imageSource={item.image}
+                            nombre={item.artworkid}
+                            precio={item.currentBid}
+                            tiempo={item.endtime}
+                            imageSource={{uri: item.image}}
                             onDelete={() => handleDelete(index)}
                             />
                         )}
