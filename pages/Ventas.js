@@ -62,7 +62,7 @@ const Categorias = () => {
                         />
                     ))
                 ) : (
-                    <Text>No tienes ventas.</Text>
+                    <Text style={{marginLeft: '8%', marginTop: 40}}>No tienes ventas.</Text>
                 )}
             </ScrollView>
         </View>

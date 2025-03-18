@@ -7,12 +7,50 @@ import axios from 'axios'
 const Login = () => {
 
     const [loading, setLoading] = useState(false); 
-          
+
+    //Validacion
+    const[email, setEmail] = useState('')
+    const[password, setPassword] = useState('')
+    const [errors, setErrors] = useState({});
+    const [isFormValid, setIsFormValid] = useState(false);
+
+    //Chars
+    const emailChars = /\S+@\S+\.\S+/
+
+    const validateForm = () => {
+        let errors = {};
+        let errorMessages = ''; // Variable para almacenar los errores
+
+        if (!email) {
+            errors.email = 'El email es obligatorio.';
+            errorMessages += 'El email es obligatorio.\n'; // Acumulamos el error
+        } else if (!emailChars.test(email)) {
+            errors.email = 'El email no es válido.';
+            errorMessages += 'El email no es válido.\n'; // Acumulamos el error
+        }
+
+        if (!password) {
+            errors.password = 'Contraseña es obligatoria';
+            errorMessages += 'Contraseña es obligatoria.\n'; // Acumulamos el error
+        }
+
+        // Mostrar alerta con los errores acumulados
+        if (Object.keys(errors).length > 0) {
+            window.alert(errorMessages); // Muestra los errores acumulados en la alerta
+        }
+
+        setErrors(errors);
+        setIsFormValid(Object.keys(errors).length === 0);
+    };
+    
     const Navigation = useNavigation()
-    const[email,setEmail] = useState('')
-    const[password,setPassword] = useState('')
+    
+
     const onSubmit = async (data) => {
-        console.log('Formulario enviado:', email);
+
+        validateForm();
+
+        console.log('Formulario enviado:', email,password);
         try {
           const response = await axios.post('http://localhost:4000/login', {
             email: email,
@@ -41,6 +79,7 @@ const Login = () => {
         }
       };
 
+
     return (
         <ImageBackground style={styles.background} source={require('../assets/Background.png')} resizeMode='cover'>
         <View style={styles.container} >
@@ -53,8 +92,8 @@ const Login = () => {
                 <Text style={styles.titulo}>Iniciar Sesión</Text>
 
 
-                <TextInput style={styles.input} placeholder='Correo Electronico' keyboardType='email-address' onChangeText={setEmail}/>
-                <TextInput style={styles.input} placeholder='Contraseña' secureTextEntry={true} onChangeText={setPassword}/>
+                <TextInput style={styles.input} placeholder='Correo Electronico' keyboardType='email-address' value={email} onChangeText={setEmail}/>
+                <TextInput style={styles.input} placeholder='Contraseña' secureTextEntry={true} value={password} onChangeText={setPassword}/>
 
 
 

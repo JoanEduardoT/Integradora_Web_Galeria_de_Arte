@@ -14,12 +14,90 @@ const Register = () => {
     const [direccion,setDireccion] = useState('');
     const [ciudad,setCiudad] = useState('');
     const [phone,setPhone] = useState('');
-    const [Birth,setBirth] = useState('');
+    const [errors, setErrors] =useState('');
+    const [isFormValid, setIsFormValid] = useState(false);
 
+    //regex
+    const latinChars = /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s\'\-]*)$/gi; //nombre, apellido, ciudad
+    const emailChars = /\S+@\S+\.\S+/ //email
+    const direccionChars = /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff0-9\s\'\-\.,]*)$/gi // direccion
+    const phoneChars = /^\d{2}[-\s]?\d{4}[-\s]?\d{4}$/ //numero telefonico
+
+    const validateForm = () => {
+        let errors = {};
+        let errorMessages = ''; // Variable para almacenar los errores
+
+        if (!nombre) {
+            errors.nombre = 'El nombre es obligatorio.';
+            errorMessages += 'El nombre es obligatorio.\n';
+        } else if (!latinChars.test(nombre)) {
+            errors.nombre = 'El nombre debe contener solo texto.';
+            errorMessages += 'El nombre debe contener solo texto.\n';
+        }
+
+        if (!apellido) {
+            errors.apellido = 'El apellido es obligatorio.';
+            errorMessages += 'El apellido es obligatorio.\n';
+        } else if (!latinChars.test(apellido)) {
+            errors.apellido = 'El apellido debe contener solo texto.';
+            errorMessages += 'El apellido debe contener solo texto.\n';
+        }
+
+        if (!email) {
+            errors.email = 'El email es obligatorio.';
+            errorMessages += 'El email es obligatorio.\n';
+        } else if (!emailChars.test(email)) {
+            errors.email = 'El email no es válido.';
+            errorMessages += 'El email no es válido.\n';
+        }
+
+        if (!password) {
+            errors.password = 'Contraseña es obligatoria';
+            errorMessages += 'Contraseña es obligatoria.\n';
+        } else if (password.length < 6) {
+            errors.password = 'La contraseña debe tener al menos 6 caracteres.';
+            errorMessages += 'La contraseña debe tener al menos 6 caracteres.\n';
+        }
+
+        if (!ciudad) {
+            errors.ciudad = 'La ciudad es obligatorio.';
+            errorMessages += 'La ciudad es obligatorio.\n';
+        } else if (!latinChars.test(ciudad)) {
+            errors.ciudad = 'La ciudad debe contener solo texto.';
+            errorMessages += 'La ciudad debe contener solo texto.\n';
+        }
+
+        if (!direccion) {
+            errors.direccion = 'La dirección es obligatoria.';
+            errorMessages += 'La dirección es obligatoria.\n';
+        } else if (!direccionChars.test(direccion)) {
+            errors.direccion = 'La direccion solo incluye letras, números, espacios, guiones, comas y puntos.';
+            errorMessages += 'La direccion solo incluye letras, números, espacios, guiones, comas y puntos.\n';
+        }
+
+        if (!phone) {
+            errors.phone = 'El celular es obligatorio';
+            errorMessages += 'El celular es obligatorio.\n';
+        } else if (!phoneChars.test(phone)) {
+            errors.phone = 'El celular debe contener 10 dígitos.';
+            errorMessages += 'El celular debe contener 10 dígitos.\n';
+        }
+
+        // Mostrar alerta con los errores acumulados
+        if (Object.keys(errors).length > 0) {
+            window.alert(errorMessages); // Muestra los errores acumulados en la alerta
+        }
+
+        setErrors(errors);
+        setIsFormValid(Object.keys(errors).length === 0);
+    }
+    
 
     const onSubmit = async () => {
-        console.log("Dato:", nombre, apellido, email, password, direccion, ciudad, phone, Birth); // Asegúrate de que los valores estén aquí
+        console.log("Dato:", nombre, apellido, email, password, direccion, ciudad, phone); // Asegúrate de que los valores estén aquí
     
+        validateForm();
+
         try {
             const response = await axios.post('http://localhost:4000/register', {
                 name: nombre,
@@ -29,7 +107,7 @@ const Register = () => {
                 address: direccion,
                 city: ciudad,
                 phone: phone,
-                birth: Birth
+                birth: '2003-05-10'
             });
     
             if (response.status === 201) {
@@ -55,19 +133,24 @@ const Register = () => {
                 <Text style={styles.titulo}>Registrate</Text>
 
                 <View style={{flexDirection: 'row', width: '80%'}}>
-                    <TextInput style={styles.input} placeholder='Nombre(s)' keyboardType='email-address' onChangeText={setNombre}/>
-                    <TextInput style={styles.input} placeholder='Apellidos(s)' onChangeText={setApellido}/>
+                    <TextInput style={styles.input} placeholder='Nombre(s)' value={nombre} onChangeText={setNombre}/>
+                    <TextInput style={styles.input} placeholder='Apellidos(s)' value={apellido} onChangeText={setApellido}/>
                 </View>
 
                 <View style={{flexDirection: 'row', width: '80%'}}>
-                    <TextInput style={styles.input} placeholder='Correo Electronico' keyboardType='email-address' onChangeText={setEmail}/>
-                    <TextInput style={styles.input} placeholder='Contraseña' onChangeText={setPassword} />
+                    <TextInput style={styles.input} placeholder='Correo Electronico' keyboardType='email-address' value={email} onChangeText={setEmail}/>
+                    <TextInput style={styles.input} placeholder='Contraseña' value={password} secureTextEntry={true} onChangeText={setPassword} />
                 </View>
 
                 <View style={{flexDirection: 'row', width: '80%'}}>
-                    <TextInput style={styles.input} placeholder='Ciudad' keyboardType='email-address' onChangeText={setCiudad}/>
-                    <TextInput style={styles.input} placeholder='Fecha De Nacimiento' onChangeText={setBirth}/>
+                    <TextInput style={styles.input} placeholder='Ciudad' value={ciudad} onChangeText={setCiudad}/>
+                    <TextInput style={styles.input} placeholder='Direccion' value={direccion} onChangeText={setDireccion}/>
                 </View>
+
+                <View style={{flexDirection: 'row', width: '80%'}}>
+                    <TextInput style={styles.inputUnico} placeholder='Celular' value={phone} onChangeText={setPhone}/>
+                </View>
+                
                 
 
                 <TouchableOpacity style={styles.boton} onPress={onSubmit}>
@@ -134,6 +217,16 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
         borderRadius:10,
         boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.3)',
+    },
+    inputUnico:{
+        backgroundColor: '#FFF9F9',
+        width: '100%',
+        height: 40,
+        paddingHorizontal: 20,
+        marginBottom: 15,
+        marginHorizontal: 10,
+        borderRadius:10,
+        boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.3)'
     },
     boton:{
         marginTop: 10,

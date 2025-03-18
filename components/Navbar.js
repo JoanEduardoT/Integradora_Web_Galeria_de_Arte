@@ -15,19 +15,19 @@ const Navbar = () => {
             <View style={styles.pagesContainer}> 
 
                 <Pressable style={styles.pageBtn} onPress={() => navigation.navigate('Dashboard')}>
-                    <Text style={styles.textBtn}>DASHBOARD</Text>
+                    <Text style={styles.textBtn}>Dashboard</Text>
                 </Pressable>
 
                 <Pressable style={styles.pageBtn} onPress={() => navigation.navigate('Productos')}>
-                    <Text style={styles.textBtn}>PRODUCTOS</Text>
+                    <Text style={styles.textBtn}>Productos</Text>
                 </Pressable>
 
                 <Pressable style={styles.pageBtn} onPress={() => navigation.navigate('Subastas')}>
-                    <Text style={styles.textBtn}>SUBASTAS</Text>
+                    <Text style={styles.textBtn}>Subastas</Text>
                 </Pressable>
 
                 <Pressable style={styles.pageBtn} onPress={() => navigation.navigate('Ventas')}>
-                    <Text style={styles.textBtn}>VENTAS</Text>
+                    <Text style={styles.textBtn}>Ventas</Text>
                 </Pressable>
 
                 <Pressable style={styles.pageBtn} onPress={() => navigation.navigate('Perfil')}>
