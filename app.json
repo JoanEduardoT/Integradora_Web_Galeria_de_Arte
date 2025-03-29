@@ -1,31 +1,37 @@
 {
   "expo": {
-    "name": "EncontrarteWeb",
-    "slug": "EncontrarteWeb",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+    "name": "MiSubastaPWA",
+    "slug": "misubastapwa",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "manifest": {
+        "short_name": "MiSubasta",
+        "name": "Mi Subasta Web",
+        "icons": [
+          {
+            "src": "./assets/icon.png",
+            "type": "image/png",
+            "sizes": "192x192"
+          },
+          {
+            "src": "./assets/icon.png",
+            "type": "image/png",
+            "sizes": "512x512"
+          }
+        ],
+        "start_url": "/",
+        "background_color": "#ffffff",
+        "display": "standalone",
+        "theme_color": "#000000"
       }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-font"
-    ]
+    "android": {
+      "package": "com.bear556.misubastapwa"
+    }
   }
 }

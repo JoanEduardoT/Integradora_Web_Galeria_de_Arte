@@ -111,8 +111,13 @@ const Perfil = () => {
                         </Text>
                         <Text style={styles.informacion}>
                             • {userData.addres}
-                            • {userData.city}
+                            
                         </Text>
+                        { userData ? (
+                        <Text> • {userData.city} </Text>
+                        ) : (
+                        <Text> No hay direccion para mostrar </Text>
+                        )}           
                         <Text style={styles.informacion}>
                             • {userData.phone}
                         </Text>
@@ -166,8 +171,6 @@ const Perfil = () => {
                                                 </View>
                                             </View>
                                         </Modal>
-
-
                 </View>
             </ScrollView>
 

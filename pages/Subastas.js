@@ -74,7 +74,7 @@ const Subastas = () => {
             const formData = {
                 title: nombre,
                 descripcion: descripcion,
-                image: image, 
+                image: "texto", 
                 currentBid:parseFloat(precio),
                 artistid: userId,  
                 endedtime:tiempo

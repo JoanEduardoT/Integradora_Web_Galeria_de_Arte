@@ -79,7 +79,7 @@ const Productos = () => {
                 artwork_type: 'Subasta', // O 'Directa'
                 title: nombre,
                 descripcion: descripcion,
-                image: image, // La imagen ya está en Base64
+                image: "texto", // La imagen ya está en Base64
                 firstprice: parseFloat(precio),
                 artistid: userId,  
                 categoriaid: categoria
