@@ -30,7 +30,7 @@ const Perfil = () => {
             }
     
             // Realiza la solicitud al servidor para obtener los datos del usuario
-            const response = await axios.get(`http://localhost:4000/user/${userId}`, {
+            const response = await axios.get(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/user/${userId}`, {
               headers: {
                 Authorization: `Bearer ${userToken}`, // En caso de usar JWT o algún token
               },

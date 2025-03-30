@@ -21,7 +21,7 @@ const Subastas = () => {
     [tiempo, setTiempo] = useState('');
     [descripcion, setDescripcion] = useState('');
     [image, setImage] = useState('');
-    [loading, setLoading] = useState(true); // Estado para el loading
+    [loading, setLoading] = useState(true); 
    
     
 
@@ -35,7 +35,7 @@ const Subastas = () => {
                 console.log("UserId:", userId);
 
                 if (userId && token) {
-                    const subastasResponse = await axios.get(`http://localhost:4000/auctions/${userId}`, {
+                    const subastasResponse = await axios.get(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/auctions/${userId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     setListaSubastas(subastasResponse.data);
@@ -44,7 +44,7 @@ const Subastas = () => {
             } catch (error) {
                 console.error('Error al obtener los datos:', error);
             } finally {
-                setLoading(false); // Finaliza el loading después de las solicitudes
+                setLoading(false); 
             }
         };
 
@@ -55,7 +55,32 @@ const Subastas = () => {
         return <Text>Cargando...</Text>; // Mostrar texto de carga mientras se obtienen los datos
     }
 
+    const uploadImageToCloudinary = async (image) => {
+        const cloudName = "doptv8gka";
+        const uploadPreset = "ml_default"; 
+    
+        let base64Img = image.split(',')[1]; 
+        let data = {
+            file: `data:image/jpeg;base64,${base64Img}`,
+            upload_preset: uploadPreset
+        };
+    
+        try {
+            let response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: { "Content-Type": "application/json" }
+            });
+    
+            let result = await response.json();
+            return result.secure_url; // URL de la imagen subida
+        } catch (error) {
+            console.error("Error al subir la imagen a Cloudinary:", error);
+            return null;
+        }
+    };
 
+    
      //Creacion Producto
      const handleSubmit = async () => {
         if (nombre === '' || precio === '' || tiempo === '' || descripcion === '' || !image) {
@@ -70,27 +95,32 @@ const Subastas = () => {
                 Alert.alert('Error', 'No se encontró el ID del usuario');
                 return;
             }
-    
+            
+            const imageUrl = await uploadImageToCloudinary(image);
+                        if (!imageUrl) {
+                            Alert.alert("Error", "No se pudo subir la imagen");
+                            return;
+                        }
+            console.log(imageUrl)            
             const formData = {
                 title: nombre,
                 descripcion: descripcion,
-                image: "texto", 
+                image: imageUrl, 
                 currentBid:parseFloat(precio),
                 artistid: userId,  
                 endedtime:tiempo
             };
     
-            const response = await axios.post('http://localhost:4000/Addactions', formData);
+            const response = await axios.post('http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/Addactions', formData);
             console.log("datos enviados:", formData);
             console.log('Producto registrado:', response.data);
             Alert.alert('Éxito', 'Producto registrado correctamente');
     
-            setListaProductos(prevProductos => [...prevProductos, formData]);
+            setListaSubastas(prevSubastas => [...prevSubastas, formData]);
     
             // Limpiar los inputs
             setNombre('');
             setPrecio('');
-            setCantidad('');
             setTiempo('');
             setDescripcion('');
             setImage('');
@@ -114,16 +144,16 @@ const Subastas = () => {
 
     //ImagePicker
     const handleImagePickerPress = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            quality: 1,
-            allowsEditing: true,
-            base64: true // Activar conversión automática a Base64
-        });
-    
-        if (!result.canceled) {
-            setImage(`data:image/jpeg;base64,${result.assets[0].base64}`); // Guardar en estado
-        }
-    };
+            let result = await ImagePicker.launchImageLibraryAsync({
+                quality: 1,
+                allowsEditing: true,
+                base64: true // Activar conversión automática a Base64
+            });
+        
+            if (!result.canceled) {
+                setImage(`data:image/jpeg;base64,${result.assets[0].base64}`); // Guardar en estado
+            }
+        };
 
 
     return (
@@ -145,17 +175,45 @@ const Subastas = () => {
 
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                     
-                                    <TextInput style={styles.inputDoble} 
-                                    placeholder='Precio (MXN)' 
+                                <TextInput
+                                    style={styles.inputDoble}
+                                    placeholder="Precio (MXN)"
                                     value={precio}
-                                    onChangeText={setPrecio}
-                                    placeholderTextColor={'#634455'}/>
+                                    onChangeText={(text) => {
+                                        const numericText = text.replace(/[^0-9.]/g, ''); // Permitir solo números y punto decimal
+                                        setPrecio(numericText);
+                                    }}
+                                    keyboardType="numeric"
+                                    placeholderTextColor={'#634455'}
+                                />
 
-                                    <TextInput style={styles.inputDoble} 
-                                    placeholder='Tiempo' 
-                                    value={tiempo}
-                                    onChangeText={setTiempo}
-                                    placeholderTextColor={'#634455'}/>
+
+                                    <TextInput
+                                        style={styles.inputDoble}
+                                        placeholder="AAAA-MM-DD"
+                                        value={tiempo}
+                                        onChangeText={(text) => {
+                                            let cleaned = text.replace(/[^0-9]/g, ''); // Eliminar caracteres no numéricos
+                                            let formatted = '';
+
+                                            if (cleaned.length > 4) {
+                                                formatted = `${cleaned.slice(0, 4)}-${cleaned.slice(4, 6)}`;
+                                            } else {
+                                                formatted = cleaned;
+                                            }
+                                            if (cleaned.length > 6) {
+                                                formatted += `-${cleaned.slice(6, 8)}`;
+                                            }
+
+                                            setTiempo(formatted);
+                                        }}
+                                        keyboardType="numeric"
+                                        maxLength={10} // Para evitar que se ingresen más caracteres de los necesarios
+                                        placeholderTextColor={'#634455'}
+                                    />
+
+                                    
+
                                 </View>
                                 
                             
@@ -199,7 +257,7 @@ const Subastas = () => {
                         renderItem={({item, index}) => (
                             
                             <SubastaList
-                            nombre={item.artworkid}
+                            nombre={item.title}
                             precio={item.currentBid}
                             tiempo={new Date(item.endedtime).toLocaleString('es-MX', {
                                 year: 'numeric',

@@ -37,22 +37,22 @@ const Dashboard = () => {
 
                 if (userId && token) {
                     // Llamadas a la API con el userId y token
-                    const productosResponse = await axios.get(`http://localhost:4000/products/${userId}`, {
+                    const productosResponse = await axios.get(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/products/${userId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     setProductos(productosResponse.data);
 
-                    const subastasResponse = await axios.get(`http://localhost:4000/auctions/${userId}`, {
+                    const subastasResponse = await axios.get(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/auctions/${userId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     setSubastas(subastasResponse.data);
 
-                    const ventasResponse = await axios.get(`http://localhost:4000/sales/${userId}`, {
+                    const ventasResponse = await axios.get(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/sales/${userId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     setVentas(ventasResponse.data);
 
-                    const response = await axios.get(`http://localhost:4000/user/${userId}`, {
+                    const response = await axios.get(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/user/${userId}`, {
                         headers: {
                           Authorization: `Bearer ${token}`, // En caso de usar JWT o algún token
                         },
@@ -81,7 +81,7 @@ const Dashboard = () => {
             <Navbar />
 
             <ScrollView style={styles.scroll}>
-                <Text style={styles.tituloBold}>DASHBOARD</Text>
+                <Text style={styles.tituloBold}>Inicio</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginLeft: '8%', marginBottom: 30 }}>
                     <Text style={styles.tituloBold2}>Bienvenido, </Text>
                     <Text style={styles.tituloRegular}>{userData.name} {userData.lastname}!</Text> {/* Aquí puedes mostrar el nombre del usuario si lo tienes */}
@@ -127,7 +127,7 @@ const Dashboard = () => {
                                 subastas.map((subasta, index) => (
                                     <SubastaContainer
                                         key={index}
-                                        nombre={subasta.artworkid} // Ajusta según el modelo de datos
+                                        nombre={subasta.title} // Ajusta según el modelo de datos
                                         oferta={subasta.currentBid}
                                         tiempo={new Date(subasta.endedtime).toLocaleString('es-MX', {
                                             year: 'numeric',

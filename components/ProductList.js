@@ -7,15 +7,14 @@ import Feather from '@expo/vector-icons/Feather';
 const ProductList = ({nombre, precio, cantidad, descripcion, imageSource, onDelete}) => {
 
     return (
-        <TouchableOpacity style={styles.containerPrincipal}>
+        <View style={styles.containerPrincipal}>
 
             <View style={styles.containerSecundario}>
-                {imageSource && (<Image source={{ uri: imageSource }} style={styles.image}/>)}
+                {imageSource && (<Image source={imageSource } style={styles.image}/>)}
 
                 <View>
                     <Text style={styles.titulo}>{nombre}</Text>
                     <Text style={styles.precio}>Precio: ${precio} MXN</Text>
-                    <Text style={styles.cantidad}>Cantidad: {cantidad}</Text>
 
                     <Text style={styles.titulo2}>Descripcion</Text>
                     <View>
@@ -30,7 +29,7 @@ const ProductList = ({nombre, precio, cantidad, descripcion, imageSource, onDele
             </TouchableOpacity>
             
 
-        </TouchableOpacity>
+        </View>
     )
 }
 

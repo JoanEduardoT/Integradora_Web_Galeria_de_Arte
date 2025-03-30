@@ -25,7 +25,6 @@ const ProductContainer = ({nombre, cantidad, imageSource}) => {
 
                 <View>
                     <Text style={styles.titulo}>{nombre}</Text>
-                    <Text style={styles.cantidad}>Cantidad Restante: {cantidad}</Text>
                 </View>
             </View>
             

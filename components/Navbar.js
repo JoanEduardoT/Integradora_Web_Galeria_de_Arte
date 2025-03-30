@@ -15,7 +15,7 @@ const Navbar = () => {
             <View style={styles.pagesContainer}> 
 
                 <Pressable style={styles.pageBtn} onPress={() => navigation.navigate('Dashboard')}>
-                    <Text style={styles.textBtn}>Dashboard</Text>
+                    <Text style={styles.textBtn}>Inicio</Text>
                 </Pressable>
 
                 <Pressable style={styles.pageBtn} onPress={() => navigation.navigate('Productos')}>

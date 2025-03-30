@@ -7,17 +7,14 @@ const SubastaContainer = ({nombre, tiempo, oferta, imageSource}) => {
 
     return (
         <TouchableOpacity style={styles.containerPrincipal}>
-
             <View style={styles.containerSecundario}>
                 {imageSource && (<Image source={imageSource} style={styles.image}/>)}
-
                 <View>
-                    <Text style={styles.titulo}>{nombre}</Text>
+                    <Text style={styles.titulo} numberOfLines={1} ellipsizeMode="tail">{nombre}</Text>
                     <Text style={styles.subtitulo}>Oferta Actual: ${oferta} MXN</Text>
                     <Text style={styles.subtitulo}>Vencimiento: {tiempo}</Text>
                 </View>
             </View>
-            
         </TouchableOpacity>
     )
 }
@@ -25,7 +22,6 @@ const SubastaContainer = ({nombre, tiempo, oferta, imageSource}) => {
 export default SubastaContainer
 
 const styles = StyleSheet.create({
-
     containerPrincipal: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -38,7 +34,6 @@ const styles = StyleSheet.create({
         boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)',
         alignSelf: 'center',
         margin: 5
-        
     },
     containerSecundario:{
         flexDirection: 'row',
@@ -53,7 +48,8 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginLeft: 20,
-        color: '#1A1A1A'
+        color: '#1A1A1A',
+        maxWidth: 180,
     },
     subtitulo:{
         fontSize: 11,
@@ -68,6 +64,4 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     }
-    
-
 });

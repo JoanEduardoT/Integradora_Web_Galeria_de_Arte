@@ -32,7 +32,6 @@ const Productos = () => {
     [nombre, setNombre] = useState('');
     [categoria, setCategoria] = useState('');
     [precio, setPrecio] = useState('');
-    [cantidad, setCantidad] = useState('');
     [descripcion, setDescripcion] = useState('');
     [image, setImage] = useState('');
 
@@ -45,7 +44,7 @@ const Productos = () => {
             console.log("UserToken:",token);
             console.log("UserId:", userId);
 
-            const response = await axios.get(`http://localhost:4000/products/${userId}`,{
+            const response = await axios.get(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/products/${userId}`,{
                 headers: { Authorization: `Bearer ${token}` },
             });// Asegúrate de que el backend está corriendo
             setListaProductos(response.data);
@@ -61,47 +60,74 @@ const Productos = () => {
     }, []);
 
     //Creacion Producto
+
+    const uploadImageToCloudinary = async (image) => {
+        const cloudName = "doptv8gka";
+        const uploadPreset = "ml_default"; 
+    
+        let base64Img = image.split(',')[1]; 
+        let data = {
+            file: `data:image/jpeg;base64,${base64Img}`,
+            upload_preset: uploadPreset
+        };
+    
+        try {
+            let response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: { "Content-Type": "application/json" }
+            });
+    
+            let result = await response.json();
+            return result.secure_url; // URL de la imagen subida
+        } catch (error) {
+            console.error("Error al subir la imagen a Cloudinary:", error);
+            return null;
+        }
+    };
+
     const handleSubmit = async () => {
-        if (nombre === '' || precio === '' || cantidad === '' || descripcion === ''|| categoria === '' || !image) {
-            Alert.alert('Error', 'Todos los campos son obligatorios');
+        if (!nombre || !precio || !descripcion || !categoria || !image) {
+            Alert.alert("Error", "Todos los campos son obligatorios");
             return;
         }
     
         try {
-            const userId = await AsyncStorage.getItem('userId'); // Obtener el ID del usuario
-    
+            const userId = await AsyncStorage.getItem("userId");
             if (!userId) {
-                Alert.alert('Error', 'No se encontró el ID del usuario');
+                Alert.alert("Error", "No se encontró el ID del usuario");
+                return;
+            }
+    
+            const imageUrl = await uploadImageToCloudinary(image);
+            if (!imageUrl) {
+                Alert.alert("Error", "No se pudo subir la imagen");
                 return;
             }
     
             const formData = {
-                artwork_type: 'Subasta', // O 'Directa'
+                artwork_type: "Directa",
                 title: nombre,
                 descripcion: descripcion,
-                image: "texto", // La imagen ya está en Base64
+                image: imageUrl, 
                 firstprice: parseFloat(precio),
-                artistid: userId,  
+                artistid: userId,
                 categoriaid: categoria
             };
     
-            const response = await axios.post('http://localhost:4000/Addartworks', formData);
-            console.log('Producto registrado:', response.data);
-            Alert.alert('Éxito', 'Producto registrado correctamente');
-    
+            const response = await axios.post("http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/Addartworks", formData);
+            console.log("Producto registrado:", response.data);
+            Alert.alert("Éxito", "Producto registrado correctamente");
+            
             setListaProductos(prevProductos => [...prevProductos, formData]);
-    
-            // Limpiar los inputs
-            setNombre('');
-            setCategoria('');
-            setPrecio('');
-            setCantidad('');
-            setDescripcion('');
-            setImage('');
-    
+            setNombre("");
+            setCategoria("");
+            setPrecio("");
+            setDescripcion("");
+            setImage(null); 
         } catch (error) {
-            console.error('Error al registrar el producto:', error.response ? error.response.data : error.message);
-            Alert.alert('Error', 'No se pudo registrar el producto');
+            console.error("Error al registrar el producto:", error.response ? error.response.data : error.message);
+            Alert.alert("Error", "No se pudo registrar el producto");
         }
     };
     
@@ -124,6 +150,7 @@ const Productos = () => {
             setImage(`data:image/jpeg;base64,${result.assets[0].base64}`); // Guardar en estado
         }
     };
+   
     
 
 
@@ -164,17 +191,20 @@ const Productos = () => {
                             
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                     
-                                    <TextInput style={styles.inputDoble} 
-                                    placeholder='Precio (MXN)' 
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Precio (MXN)"
                                     value={precio}
-                                    onChangeText={setPrecio}
-                                    placeholderTextColor={'#634455'}/>
+                                    onChangeText={(text) => {
+                                        const numericText = text.replace(/[^0-9.]/g, ''); // Permitir solo números y punto decimal
+                                        setPrecio(numericText);
+                                    }}
+                                    keyboardType="numeric"
+                                    placeholderTextColor={'#634455'}
+                                />
 
-                                    <TextInput style={styles.inputDoble} 
-                                    placeholder='Cantidad' 
-                                    value={cantidad}
-                                    onChangeText={setCantidad}
-                                    placeholderTextColor={'#634455'}/>
+
+                                    
                                 </View>
 
 

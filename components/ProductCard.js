@@ -8,20 +8,20 @@ import { useEffect } from 'react';
 import Feather from '@expo/vector-icons/Feather';
 
 const ProductCard = ({nombre, precio, cantidad, categoria, imageSource, onDelete}) => {
+    console.log(ProductCard)
 
     return (
         <View style={styles.cardbody}>
             
             {imageSource && (
                 <View style={{height: '55%'}}>
-                    <Image source={{ uri: imageSource }} style={styles.image} />
+                    <Image source={ imageSource } style={styles.image} />
                 </View>
             )}
 
             <Text style={styles.nombre}>{nombre}</Text>
 
             <Text style={styles.detalles}>Precio: ${precio} MXN</Text>
-            <Text style={styles.detalles}>Cantidad: {cantidad}</Text>
             <Text style={styles.detalles}>Categoria: {categoria}</Text>
 
             <TouchableOpacity style={styles.boton} onPress={onDelete}>
