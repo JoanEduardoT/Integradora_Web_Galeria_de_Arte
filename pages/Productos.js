@@ -30,7 +30,7 @@ const Productos = () => {
     //Crear Producto Local
     [listaProductos, setListaProductos] = useState([]);
     [nombre, setNombre] = useState('');
-    [categoria, setCategoria] = useState('');
+    [categoria, setCategoria] = useState('1');
     [precio, setPrecio] = useState('');
     [descripcion, setDescripcion] = useState('');
     [image, setImage] = useState('');
