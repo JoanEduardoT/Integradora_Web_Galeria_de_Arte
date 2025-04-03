@@ -1,9 +1,12 @@
-import React, {useState,useEffect} from 'react'
+import React, {useState,useEffect, useCallback} from 'react'
 import { View, Text, ScrollView, StyleSheet, Image, TouchableOpacity, Modal,TextInput} from 'react-native'
 import Navbar from '../components/Navbar'
 import { useNavigation } from '@react-navigation/native'
+import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios'
+import * as ImagePicker from 'expo-image-picker';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 const Perfil = () => {
@@ -12,45 +15,50 @@ const Perfil = () => {
     const [userData, setUserData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [modalVisible, setModalVisible] = useState(false);
+    const [image, setImage] = useState(null);
+    const [refreshKey, setRefreshKey] = useState(0);
+    
+
     
 
 
-    useEffect(() => {
+    useFocusEffect(
+        useCallback(() => {
         const fetchUserData = async () => {
           try {
             const userToken = await AsyncStorage.getItem('userToken')
             const userId = await AsyncStorage.getItem('userId')
     
-            console.log("userToken:", userToken) // Depuración
-            console.log("userId:", userId) // Depuración
+            console.log("userToken:", userToken) 
+            console.log("userId:", userId) 
     
             if (!userToken || !userId) {
-              console.log('No hay token o userId disponibles') // Depuración
-              return // Si no hay token o ID, no seguir con la solicitud
+              console.log('No hay token o userId disponibles') 
+              return 
             }
     
-            // Realiza la solicitud al servidor para obtener los datos del usuario
+            
             const response = await axios.get(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/user/${userId}`, {
               headers: {
-                Authorization: `Bearer ${userToken}`, // En caso de usar JWT o algún token
+                Authorization: `Bearer ${userToken}`, 
               },
+              
             })
     
             console.log(response.data[0])
             setUserData(response.data[0])
-            setLoading(false) // Cambia el estado de carga a false cuando se obtienen los datos
-    
+            setLoading(false)
           } catch (error) {
             console.error('Error al obtener los datos del usuario', error)
-            setLoading(false) // Cambia el estado de carga a false en caso de error
+            setLoading(false) 
           }
         }
     
         fetchUserData()
-      }, [])
+      }, [image]))
 
       if (loading) {
-        // Si los datos aún están cargando, muestra un mensaje de carga
+        
         return (
           <View style={styles.loadingContainer}>
             <Text>Cargando...</Text>
@@ -59,7 +67,7 @@ const Perfil = () => {
       }
     
       if (!userData) {
-        // Si no se han recibido datos del usuario, mostrar mensaje de error
+        
         return (
           <View style={styles.loadingContainer}>
             <Text>No se pudo obtener la información del usuario.</Text>
@@ -67,27 +75,109 @@ const Perfil = () => {
         )
       }
 
+      const uploadImageToCloudinary = async (image) => {
+        const cloudName = "doptv8gka";
+        const uploadPreset = "ml_default"; 
+    
+        let base64Img = image.split(',')[1]; 
+        let data = {
+            file: `data:image/jpeg;base64,${base64Img}`,
+            upload_preset: uploadPreset
+        };
+    
+        try {
+            let response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: { "Content-Type": "application/json" },
+                
+            });
+
+    
+            let result = await response.json();
+            return result.secure_url; 
+        } catch (error) {
+            console.error("Error al subir la imagen a Cloudinary:", error);
+            return null;
+        }
+    };
+    
+    const handleSubmit = async () => {
+        setRefreshKey(prevKey => prevKey + 1);
+
+        if (!image) {
+            Alert.alert('Error', 'Debes seleccionar una imagen');
+            return;
+        }
+    
+        try {
+            const userId = await AsyncStorage.getItem('userId'); 
+    
+            if (!userId) {
+                Alert.alert('Error', 'No se encontró el ID del usuario');
+                return;
+            }
+    
+            const imageUrl = await uploadImageToCloudinary(image);
+            if (!imageUrl) {
+                Alert.alert("Error", "No se pudo subir la imagen");
+                return;
+            }
+    
+            const formData = {
+                id: userId,  
+                image: imageUrl, 
+            };
+    
+            console.log("Enviando datos:", formData);
+    
+            const response = await axios.put('http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/imageupdate', formData); 
+            setModalVisible(false);
+
+            if (response.status === 200) {
+                Alert.alert('Éxito', 'Imagen actualizada correctamente');
+                setImage('');
+            } else {
+                throw new Error("Error al actualizar la imagen");
+            }
+    
+        } catch (error) {
+            console.error('no se subió', error.response ? error.response.data : error.message);
+            Alert.alert('Error', 'No se pudo actualizar la imagen');
+        }
+    };
+    
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 4],
+            quality: 1,
+            base64: true,
+        });
+
+        if (!result.canceled) {
+            setImage(`data:image/jpeg;base64,${result.assets[0].base64}`);
+        }
+    };
+
 
     return (
+        
         <View style={{flex:1}}>
             <Navbar/>
             
             <ScrollView style={styles.scroll}>
-                <Text style={styles.tituloBold}>MI PERFIL</Text>
+            <Text style={styles.tituloBold}>MI PERFIL</Text>
 
                 <View style={styles.botonContainer}>
-                    <TouchableOpacity style={styles.botonEditar} onPress={()=> setModalVisible(true)}>
-                        <Text style={styles.textoBtn}>Editar Perfil</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.botonCerrar} onPress={() => navigation.navigate('Login')}>
-                        <Text style={styles.textoBtn}>Cerrar Sesion</Text>
+                    <TouchableOpacity style={styles.botonEditar} onPress={() => setModalVisible(true)}>
+                        <Text style={styles.textoBtn}>Editar Imagen de perfil</Text>
                     </TouchableOpacity>
                 </View>
-
                 <View style={styles.perfilContainer}>
-                    <Image style={styles.image} source={require('../assets/icon.png')} />
-
+                    <Image style={styles.image} source={userData.image ? { uri: userData.image } : require('../assets/icon.png')} />
+                
                     
                     <View style={{width: '100%', flexDirection: 'row', alignItems: 'flex-start'}}>
 
@@ -125,52 +215,28 @@ const Perfil = () => {
                     </View>
 
                     </View>
+                    <Modal visible={modalVisible} transparent animationType="fade">
+                        <View style={styles.modalBackdrop}>
+                            <View style={styles.modalContainer}>
+                            <Text style={styles.modalTitle}>Cambiar Imagen de Perfil</Text>
+                            
+                            <TouchableOpacity style={[styles.modalButton, styles.modalSelectbtn]} onPress={pickImage}>
+                                <Text style={styles.modalButtonText}>Seleccionar Imagen</Text>
+                            </TouchableOpacity>
+                            
+                            {image && <image key = {refreshKey} Image source={{ uri: image }} style={styles.modalImage} />}
+                            
+                            <TouchableOpacity style={[styles.modalButton, styles.modalButtonGuardar]} onPress={handleSubmit}>
+                                <Text style={styles.modalButtonText}>Guardar</Text>
+                            </TouchableOpacity>
+                            
+                            <TouchableOpacity style={[styles.modalButton, styles.modalButtonCancelar]} onPress={() => setModalVisible(false)}>
+                                <Text style={styles.modalButtonText}>Cancelar</Text>
+                            </TouchableOpacity>
+                            </View>
+                        </View> 
+                     </Modal>
 
-                     <Modal
-                                            animationType="fade"
-                                            visible={modalVisible}
-                                            transparent={true}
-                                            onRequestClose={() => {
-                                                Alert.alert('Modal has been closed.');
-                                                setModalVisible(!modalVisible);
-                                            }}>
-                                            <View style={styles.modalBackdrop}>
-                                                <View style={styles.modal}>
-                    
-                                                        <Text style={styles.tituloBold}>
-                                                            Editar Perfil
-                                                        </Text>
-                                                    
-                                                        <View style={{ width: '80%', backgroundColor: 'blue', justifyContent: 'center'}}>
-                    
-                                                        <View style={{alignSelf: 'center'}}>
-                                                            <View style={{flexDirection: 'row', width: '100%'}}>
-                                                                <TextInput style={styles.input} placeholder='Nombre(s)'/>
-                                                                <TextInput style={styles.input} placeholder='Apellidos(s)' />
-                                                            </View>
-                                                        
-                                                            <View style={{flexDirection: 'row', width: '80%'}}>
-                                                                <TextInput style={styles.input} placeholder='Correo Electronico' keyboardType='email-address'/>
-                                                                <TextInput style={styles.input} placeholder='Contraseña' />
-                                                            </View>
-                    
-                                                            <View style={{flexDirection: 'row', width: '80%'}}>
-                                                                <TextInput style={styles.input} placeholder='Ciudad'/>
-                                                                <TextInput style={styles.input} placeholder='Telefono'/>
-                                                            </View>
-                    
-                                                            <TouchableOpacity style={styles.boton} onPress={()=> Navigation.navigate('Login')}>
-                                                                <Text style={styles.textoBtn}>
-                                                                    Registrar
-                                                                </Text>
-                                                            </TouchableOpacity>
-                    
-                                                        </View>
-                                                    </View>
-                                                    
-                                                </View>
-                                            </View>
-                                        </Modal>
                 </View>
             </ScrollView>
 
@@ -189,10 +255,10 @@ const styles = StyleSheet.create({
         color: '#1A1A1A'
     },   
     scroll:{
-        width: '100%', // Asegura que el ScrollView ocupe todo el ancho
-        height: '100vh', // Usa el 100% de la altura de la ventana para que se active el scroll
+        width: '100%', 
+        height: '100vh', 
         backgroundColor: '#fffff3',
-        paddingBottom: '15%',  // Ajusta el padding al final si es necesario
+        paddingBottom: '15%',  
         overflowY: 'auto',
     },
     botonContainer:{
@@ -336,5 +402,61 @@ const styles = StyleSheet.create({
     },
     marginBottom:{
         marginBottom: 50
-    }
+    },
+    //MODAAL ALV
+        modalBackdrop: {
+          flex: 3,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fondo oscuro semi-transparente
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        modalContainer: {
+          width: '40%',
+          backgroundColor: '#fff',
+          padding: 20,
+          borderRadius: 15,
+          alignItems: 'center',
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 5 },
+          shadowOpacity: 0.3,
+          shadowRadius: 10,
+          elevation: 10,
+        },
+        modalTitle: {
+          fontSize: 25,
+          fontWeight: 'bold',
+          marginBottom: 15,
+          color: '#1A1A1A',
+          textAlign: 'center',
+        },
+        modalImage: {
+          width: 100,
+          height: 100,
+          borderRadius: 50,
+          marginVertical: 15,
+          borderWidth: 2,
+          borderColor: '#446e3e',
+        },
+        modalButton: {
+          width: '80%',
+          height: 45,
+          borderRadius: 10,
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginVertical: 5,
+        },
+        modalButtonGuardar: {
+          backgroundColor: '#446e3e',
+        },
+        modalButtonCancelar: {
+          backgroundColor: '#e3298f',
+        },
+        modalButtonText: {
+          fontSize: 16,
+          fontWeight: 'bold',
+          color: '#FFFFF3',
+        },
+        modalSelectbtn: {
+            backgroundColor:'#634455',
+        },
 });

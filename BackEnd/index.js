@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 
 
 
+
 const app = express();
 
 const db = mysql.createPool({
@@ -55,7 +56,24 @@ app.get('/user/:id', (req, res) => {
 });
 
 
-//--------------------------------------------------------------------------------------
+//-------------------------------------Image------------------------------------------------
+app.put('/imageupdate', (req, res) => {
+    const { id, image } = req.body;  
+
+    if (!id || !image) {
+        return res.status(400).json({ error: 'Faltan datos requeridos' });
+    }
+
+    db.query('UPDATE users SET image = ? WHERE id = ?', [image, id], (err, result) => {
+        if (err) {
+            console.error('Error al actualizar la imagen:', err);
+            return res.status(500).json({ error: 'Error en el servidor' });
+        }
+        res.status(200).json({ message: 'Imagen actualizada correctamente' });
+    });
+});
+
+//-------------------------------------------------------------------------------------
 app.post('/register', (req, res) => {
     const { name, lastname, email, pass, address, city, birth, phone } = req.body;
 
@@ -70,7 +88,7 @@ app.post('/register', (req, res) => {
         }
         console.log('Contraseña encriptada:', hashedPassword);
 
-        db.query('INSERT INTO users (name, lastname, email, password, address, city, phone, birthday) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+        db.query('INSERT INTO users (name, lastname, email, password, address, city, phone) VALUES (?, ?, ?, ?, ?, ?, ?)', 
         [name, lastname, email, hashedPassword, address, city, phone, birth], 
         (err, result) => {
             if (err) {
