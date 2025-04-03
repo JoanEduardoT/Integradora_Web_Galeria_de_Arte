@@ -10,6 +10,7 @@ import { useFocusEffect } from '@react-navigation/native';
 
 const Perfil = () => {
 
+    const navigation = useNavigation()
     const [userData, setUserData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [modalVisible, setModalVisible] = useState(false);
@@ -174,6 +175,9 @@ const Perfil = () => {
                     <TouchableOpacity style={styles.botonEditar} onPress={() => setModalVisible(true)}>
                         <Text style={styles.textoBtn}>Editar Imagen de perfil</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity style={styles.botonCerrar} onPress={() => navigation.navigate('Login')}>
+                        <Text style={styles.textoBtn}>Cerrar Sesion</Text>
+                     </TouchableOpacity>
                 </View>
                 <View style={styles.perfilContainer}>
                     <Image style={styles.image} source={userData.image ? { uri: userData.image } : require('../assets/icon.png')} />
