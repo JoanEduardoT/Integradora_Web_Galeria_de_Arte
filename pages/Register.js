@@ -18,7 +18,9 @@ const Register = () => {
     const [isFormValid, setIsFormValid] = useState(false);
 
     //regex
-    const latinChars = /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s\'\-]*)$/gi; //nombre, apellido, ciudad
+    const latinChars = /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s\'\-]*)$/gi; //nombre, ciudad
+    const nombreRegex = /^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$/
+    const apellidosRegex = /^[A-Za-záéíóúÁÉÍÓÚñÑ ]+$/
     const emailChars = /\S+@\S+\.\S+/ //email
     const direccionChars = /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff0-9\s\'\-\.,]*)$/gi // direccion
     const phoneChars = /^\d{2}[-\s]?\d{4}[-\s]?\d{4}$/ //numero telefonico
@@ -30,7 +32,7 @@ const Register = () => {
         if (!nombre) {
             errors.nombre = 'El nombre es obligatorio.';
             errorMessages += 'El nombre es obligatorio.\n';
-        } else if (!latinChars.test(nombre)) {
+        } else if (!nombreRegex.test(nombre)) {
             errors.nombre = 'El nombre debe contener solo texto.';
             errorMessages += 'El nombre debe contener solo texto.\n';
         }
@@ -38,7 +40,7 @@ const Register = () => {
         if (!apellido) {
             errors.apellido = 'El apellido es obligatorio.';
             errorMessages += 'El apellido es obligatorio.\n';
-        } else if (!latinChars.test(apellido)) {
+        } else if (!apellidosRegex.test(apellido)) {
             errors.apellido = 'El apellido debe contener solo texto.';
             errorMessages += 'El apellido debe contener solo texto.\n';
         }
@@ -143,8 +145,8 @@ const Register = () => {
                 </View>
 
                 <View style={{flexDirection: 'row', width: '80%'}}>
-                    <TextInput style={styles.input} placeholder='Ciudad' value={ciudad} onChangeText={setCiudad}/>
-                    <TextInput style={styles.input} placeholder='Direccion' value={direccion} onChangeText={setDireccion}/>
+                    <TextInput style={styles.input} placeholder='Ciudad' value={ciudad} onChangeText={setCiudad} maxLength={30}/>
+                    <TextInput style={styles.input} placeholder='Direccion' value={direccion} onChangeText={setDireccion} maxLength={30}/>
                 </View>
 
                 <View style={{flexDirection: 'row', width: '80%'}}>

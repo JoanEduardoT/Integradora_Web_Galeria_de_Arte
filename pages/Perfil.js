@@ -193,14 +193,11 @@ const Perfil = () => {
 
                     <View style={{width: '20%'}}>
                         <Text style={styles.informacionTitulo}>
-                            Informacion
+                            Información
                         </Text>
-                        <Text style={styles.informacion}>
-                            • {userData.addres}
-                            
-                        </Text>
+                        
                         { userData ? (
-                        <Text> • {userData.city} </Text>
+                        <Text style={styles.informacion}>• {userData.city} </Text>
                         ) : (
                         <Text> No hay direccion para mostrar </Text>
                         )}           
@@ -265,7 +262,7 @@ const styles = StyleSheet.create({
     },
     botonEditar:{
         marginHorizontal: 5,
-        width: '20vh',
+        width: '30vh',
         height: 40,
         backgroundColor: '#446e3e',
         borderRadius: 10,

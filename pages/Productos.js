@@ -27,13 +27,80 @@ const Productos = () => {
         setVista(tipo);
     }
 
-    //Crear Producto Local
-    [listaProductos, setListaProductos] = useState([]);
-    [nombre, setNombre] = useState('');
-    [categoria, setCategoria] = useState('1');
-    [precio, setPrecio] = useState('');
-    [descripcion, setDescripcion] = useState('');
-    [image, setImage] = useState('');
+//Crear Producto Local
+[listaProductos, setListaProductos] = useState([]);
+[nombre, setNombre] = useState('');
+[categoria, setCategoria] = useState('');
+[precio, setPrecio] = useState('');
+[cantidad, setCantidad] = useState('');
+[descripcion, setDescripcion] = useState('');
+[image, setImage] = useState('');
+[errors, setErrors] =useState('');
+[isFormValid, setIsFormValid] = useState(false);
+
+const latinChars = /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s\'\-]*)$/gi; //nombre, apellido, ciudad
+const precioRegex = /^\d+$/;
+
+
+const validateForm = () => {
+    let errors = {};
+    let errorMessages = ''; // Variable para almacenar los errores
+
+    if (!nombre) {
+        errors.nombre = 'El nombre es obligatorio.';
+        errorMessages += 'El nombre es obligatorio.\n';
+    } else if (!latinChars.test(nombre)) {
+        errors.nombre = 'El nombre debe contener solo texto.';
+        errorMessages += 'El nombre debe contener solo texto.\n';
+    }
+
+    if (!categoria || categoria == '0'){
+        errors.categoria = 'La categoria es obligatoria';
+        errorMessages += 'La categoria es obligatoria.\n'
+    }
+
+    if (!precio) {
+        errors.precio = 'El precio es obligatorio.';
+        errorMessages += 'El precio es obligatorio.\n';
+    } else if (!precioRegex.test(precio)) {
+        errors.precio = 'El precio debe contener solo numeros enteros.';
+        errorMessages += 'El precio debe contener solo numeros enteros.\n';
+    }
+
+    if (!cantidad) {
+        errors.cantidad = 'La cantidad es obligatoria.';
+        errorMessages += 'La cantidad es obligatorio.\n';
+    } else if (!precioRegex.test(cantidad)) {
+        errors.cantidad = 'La cantidad debe contener solo numeros enteros.';
+        errorMessages += 'La cantidad debe contener solo numeros enteros.\n';
+    }
+
+    if (!descripcion){
+        errors.descripcion = 'La descripcion es obligatoria';
+        errorMessages += 'La descripcion es obligatoria.\n'
+    }
+
+    if (image == '') {
+        errors.image = 'La imagen es obligatoria.'
+        errors.errorMessages += 'La imagen es obligatoria.'
+    }
+
+    // Mostrar alerta con los errores acumulados
+    if (Object.keys(errors).length > 0) {
+        window.alert(errorMessages); // Muestra los errores acumulados en la alerta
+
+        // Limpiar los inputs
+        setNombre('');
+        setCategoria('');
+        setPrecio('');
+        setCantidad('');
+        setDescripcion('');
+        setImage('');
+    }
+
+    setErrors(errors);
+    setIsFormValid(Object.keys(errors).length === 0);
+}
 
     //Mostrar Productos
     const fetchProductos = async () => {
@@ -87,6 +154,9 @@ const Productos = () => {
     };
 
     const handleSubmit = async () => {
+        
+        validateForm();
+        
         if (!nombre || !precio || !descripcion || !categoria || !image) {
             Alert.alert("Error", "Todos los campos son obligatorios");
             return;
@@ -179,6 +249,7 @@ const Productos = () => {
                                     onValueChange={(itemValue, itemIndex) =>
                                         setCategoria(itemValue)
                                     }>
+                                        <Picker.Item label="Seleccionar Categoria" value='0'/>
                                         <Picker.Item label="Pintura" value="1" />
                                         <Picker.Item label="Escultura" value="2" />
                                         <Picker.Item label="Fotografia" value="3" />
@@ -191,20 +262,17 @@ const Productos = () => {
                             
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                     
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Precio (MXN)"
+                                    <TextInput style={styles.inputDoble} 
+                                    placeholder='Precio (MXN)' 
                                     value={precio}
-                                    onChangeText={(text) => {
-                                        const numericText = text.replace(/[^0-9.]/g, ''); // Permitir solo números y punto decimal
-                                        setPrecio(numericText);
-                                    }}
-                                    keyboardType="numeric"
-                                    placeholderTextColor={'#634455'}
-                                />
+                                    onChangeText={setPrecio}
+                                    placeholderTextColor={'#634455'}/>
 
-
-                                    
+                                    <TextInput style={styles.inputDoble} 
+                                    placeholder='Cantidad' 
+                                    value={cantidad}
+                                    onChangeText={setCantidad}
+                                    placeholderTextColor={'#634455'}/>
                                 </View>
 
 
