@@ -102,7 +102,7 @@ const Perfil = () => {
     const handleSubmit = async () => {
 
         if (!image) {
-            Alert.alert('Error', 'Debes seleccionar una imagen');
+            window.alert('Error', 'Debes seleccionar una imagen');
             return;
         }
     
@@ -110,13 +110,13 @@ const Perfil = () => {
             const userId = await AsyncStorage.getItem('userId'); 
     
             if (!userId) {
-                Alert.alert('Error', 'No se encontró el ID del usuario');
+                window.alert('Error', 'No se encontró el ID del usuario');
                 return;
             }
     
             const imageUrl = await uploadImageToCloudinary(image);
             if (!imageUrl) {
-                Alert.alert("Error", "No se pudo subir la imagen");
+                window.alert("Error", "No se pudo subir la imagen");
                 return;
             }
     
@@ -135,7 +135,7 @@ const Perfil = () => {
             }));
 
             if (response.status === 200) {
-                Alert.alert('Éxito', 'Imagen actualizada correctamente');
+                window.alert('Éxito', 'Imagen actualizada correctamente');
                 setImage('');
             } else {
                 throw new Error("Error al actualizar la imagen");
