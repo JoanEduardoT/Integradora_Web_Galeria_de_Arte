@@ -129,6 +129,10 @@ const Perfil = () => {
     
             const response = await axios.put('http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/imageupdate', formData); 
             setModalVisible(false);
+            setUserData((prev) => ({
+                ...prev,
+                image: imageUrl, 
+            }));
 
             if (response.status === 200) {
                 Alert.alert('Éxito', 'Imagen actualizada correctamente');
