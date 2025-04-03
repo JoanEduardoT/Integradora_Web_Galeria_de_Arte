@@ -2,7 +2,6 @@ import React, {useState,useEffect, useCallback} from 'react'
 import { View, Text, ScrollView, StyleSheet, Image, TouchableOpacity, Modal,TextInput} from 'react-native'
 import Navbar from '../components/Navbar'
 import { useNavigation } from '@react-navigation/native'
-import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios'
 import * as ImagePicker from 'expo-image-picker';
@@ -11,19 +10,17 @@ import { useFocusEffect } from '@react-navigation/native';
 
 const Perfil = () => {
 
-    const navigation = useNavigation()
     const [userData, setUserData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [modalVisible, setModalVisible] = useState(false);
-    const [image, setImage] = useState(null);
-    const [refreshKey, setRefreshKey] = useState(0);
+    const [image, setImage] = useState('');
+    
     
 
     
 
 
-    useFocusEffect(
-        useCallback(() => {
+    useEffect(() => {
         const fetchUserData = async () => {
           try {
             const userToken = await AsyncStorage.getItem('userToken')
@@ -55,7 +52,7 @@ const Perfil = () => {
         }
     
         fetchUserData()
-      }, [image]))
+      }, [])
 
       if (loading) {
         
@@ -103,7 +100,6 @@ const Perfil = () => {
     };
     
     const handleSubmit = async () => {
-        setRefreshKey(prevKey => prevKey + 1);
 
         if (!image) {
             Alert.alert('Error', 'Debes seleccionar una imagen');
@@ -224,7 +220,7 @@ const Perfil = () => {
                                 <Text style={styles.modalButtonText}>Seleccionar Imagen</Text>
                             </TouchableOpacity>
                             
-                            {image && <image key = {refreshKey} Image source={{ uri: image }} style={styles.modalImage} />}
+                            {image && <Image source={{ uri: image }} style={styles.modalImage} />}
                             
                             <TouchableOpacity style={[styles.modalButton, styles.modalButtonGuardar]} onPress={handleSubmit}>
                                 <Text style={styles.modalButtonText}>Guardar</Text>
