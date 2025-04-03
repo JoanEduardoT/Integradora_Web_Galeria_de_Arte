@@ -314,7 +314,7 @@ const Subastas = () => {
                         renderItem={({item, index}) => (
                             
                             <SubastaList
-                            nombre={item.artworkid}
+                            nombre={item.title}
                             precio={item.currentBid}
                             tiempo={new Date(item.endedtime).toLocaleString('es-MX', {
                                 year: 'numeric',
