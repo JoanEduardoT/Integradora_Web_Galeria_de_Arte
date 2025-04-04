@@ -81,8 +81,8 @@ const Register = () => {
             errors.phone = 'El celular es obligatorio';
             errorMessages += 'El celular es obligatorio.\n';
         } else if (!phoneChars.test(phone)) {
-            errors.phone = 'El celular debe contener 10 dígitos.';
-            errorMessages += 'El celular debe contener 10 dígitos.\n';
+            errors.phone = 'El celular debe contener 10 dígitos y ser solo texto.';
+            errorMessages += 'El celular debe contener 10 dígitos y no letras\n';
         }
 
         // Mostrar alerta con los errores acumulados
@@ -135,13 +135,13 @@ const Register = () => {
                 <Text style={styles.titulo}>Registrate</Text>
 
                 <View style={{flexDirection: 'row', width: '80%'}}>
-                    <TextInput style={styles.input} placeholder='Nombre(s)' value={nombre} onChangeText={setNombre}/>
-                    <TextInput style={styles.input} placeholder='Apellidos(s)' value={apellido} onChangeText={setApellido}/>
+                    <TextInput style={styles.input} placeholder='Nombre(s)' value={nombre} onChangeText={setNombre} maxLength={35}/>
+                    <TextInput style={styles.input} placeholder='Apellidos(s)' value={apellido} onChangeText={setApellido} maxLength={35}/>
                 </View>
 
                 <View style={{flexDirection: 'row', width: '80%'}}>
                     <TextInput style={styles.input} placeholder='Correo Electronico' keyboardType='email-address' value={email} onChangeText={setEmail}/>
-                    <TextInput style={styles.input} placeholder='Contraseña' value={password} secureTextEntry={true} onChangeText={setPassword} />
+                    <TextInput style={styles.input} placeholder='Contraseña' value={password} secureTextEntry={true} onChangeText={setPassword} maxLength={20}/>
                 </View>
 
                 <View style={{flexDirection: 'row', width: '80%'}}>
@@ -267,4 +267,5 @@ const styles = StyleSheet.create({
     },
 
 })
+
 
