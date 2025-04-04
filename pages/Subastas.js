@@ -255,6 +255,7 @@ const Subastas = () => {
                                 placeholder='Nombre del Producto' 
                                 value={nombre}
                                 onChangeText={setNombre}
+                                maxLength={35}
                                 placeholderTextColor={'#634455'}/>
 
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -263,7 +264,7 @@ const Subastas = () => {
                                     placeholder='Precio (MXN)' 
                                     value={precio}
                                     onChangeText={setPrecio}
-                                    maxLength={10}
+                                    maxLength={7}
                                     placeholderTextColor={'#634455'}/>
 
                                     <TextInput style={styles.inputDoble} 
@@ -279,6 +280,7 @@ const Subastas = () => {
                             style={styles.inputDescripcion} 
                             placeholder='Descripcion' 
                             value={descripcion}
+                            maxLength={150}
                             onChangeText={setDescripcion}
                             placeholderTextColor={'#634455'}/>                      
                         </View>
@@ -432,4 +434,5 @@ const styles = StyleSheet.create({
         color: '#FFFFF3'
     }
 })
+
 
