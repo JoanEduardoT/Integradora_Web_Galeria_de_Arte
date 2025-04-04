@@ -198,9 +198,32 @@ const Subastas = () => {
             const response = await axios.post('http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/Addactions', formData);
             console.log("datos enviados:", formData);
             console.log('Producto registrado:', response.data);
-            Alert.alert('Éxito', 'Producto registrado correctamente');
+            window.alert('Subasta registrado correctamente.');
+
+            
+            const fetchData = async () => {
+                try {
+                    const userId = await AsyncStorage.getItem('userId'); // Obtener el ID del usuario
+                    const token = await AsyncStorage.getItem('userToken'); // Obtener el token
     
-            setListaSubastas(prevSubastas => [...prevSubastas, formData]);
+                    console.log("UserToken:",token);
+                    console.log("UserId:", userId);
+    
+                    if (userId && token) {
+                        const subastasResponse = await axios.get(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/auctions/${userId}`, {
+                            headers: { Authorization: `Bearer ${token}` },
+                        });
+                        setListaSubastas(subastasResponse.data);
+                        console.log(subastasResponse.data)
+                    }
+                } catch (error) {
+                    console.error('Error al obtener los datos:', error);
+                } finally {
+                    setLoading(false); 
+                }
+            };
+            fetchData();
+            
     
             // Limpiar los inputs
             setNombre('');
@@ -217,14 +240,19 @@ const Subastas = () => {
     
     
 
-    const handleDelete = (index) => {
-        setListaSubastas(prevSubastas => prevSubastas.filter((_, i) => i !== index));
-    }
-
-    /* useEffect(() => {
-        console.log(listaProductos);
-    }, [listaProductos]); */ 
-
+    const handleDelete = async (id) => {
+        try {
+          await axios.delete(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/delete_auction/${id}`);
+      
+          const nuevaLista = listaSubastas.filter((item) => item.id !== id);
+          window.alert("Subasta eliminada correctamente.");
+          setListaSubastas(nuevaLista);
+        } catch (error) {
+          console.error('Error eliminando la subasta:', error);
+        }
+      };
+      
+      
 
     //ImagePicker
     const handleImagePickerPress = async () => {
@@ -311,27 +339,28 @@ const Subastas = () => {
                     <View style={{marginVertical: '5vh'}}>
 
 
-                        <FlatList
-                        data={listaSubastas}
-                        renderItem={({item, index}) => (
-                            
-                            <SubastaList
+                    <FlatList
+                    data={listaSubastas}
+                    renderItem={({ item }) => (
+                        item && (
+                        <SubastaList
                             nombre={item.title}
                             precio={item.currentBid}
                             tiempo={new Date(item.endedtime).toLocaleString('es-MX', {
-                                year: 'numeric',
-                                month: 'numeric',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
+                            year: 'numeric',
+                            month: 'numeric',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
                             })}
-                            imageSource={{uri: item.image}}
+                            imageSource={{ uri: item.image }}
                             descripcion={item.descripcion}
-                            onDelete={() => handleDelete(index)}
-                            />
-                        )}
-                        keyExtractor={(item, index) => index.toString()}
+                            onDelete={() => handleDelete(item.id)} // ← solo mandamos la ID
                         />
+                        )
+                    )}
+                    keyExtractor={(item) => item.id} // suponiendo que item.id es único
+                    />
 
                     </View>
                         
@@ -434,5 +463,3 @@ const styles = StyleSheet.create({
         color: '#FFFFF3'
     }
 })
-
-
