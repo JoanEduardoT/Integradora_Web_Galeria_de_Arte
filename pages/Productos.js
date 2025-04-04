@@ -187,13 +187,28 @@ const validateForm = () => {
     
             const response = await axios.post("http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/Addartworks", formData);
             console.log("Producto registrado:", response.data);
-            Alert.alert("Éxito", "Producto registrado correctamente");
+            try {
+                const userId = await AsyncStorage.getItem('userId'); // Obtener el ID del usuario
+                const token = await AsyncStorage.getItem('userToken'); // Obtener el token
+                
+                console.log("UserToken:",token);
+                console.log("UserId:", userId);
+    
+                const response = await axios.get(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/products/${userId}`,{
+                    headers: { Authorization: `Bearer ${token}` },
+                });// Asegúrate de que el backend está corriendo
+                setListaProductos(response.data);
+                console.log(response.data)
+            } catch (error) {
+                console.error('Error al obtener productos:', error);
+            }
+            window.alert("Producto agregado correctamente.");
             
-            setListaProductos(prevProductos => [...prevProductos, formData]);
             setNombre("");
             setCategoria("");
             setPrecio("");
             setDescripcion("");
+            setCantidad("");
             setImage(null); 
         } catch (error) {
             console.error("Error al registrar el producto:", error.response ? error.response.data : error.message);
@@ -203,10 +218,17 @@ const validateForm = () => {
     
     
 
-    const handleDelete = (index) => {
-        setListaProductos(prevProductos => prevProductos.filter((_, i) => i !== index));
-    }
-
+    const handleDelete = async (id) => {
+        try {
+          await axios.delete(`http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/delete/${id}`);
+      
+          const nuevaLista = listaProductos.filter((item) => item.id !== id);
+          setListaProductos(nuevaLista);
+          window.alert("Producto eliminado correctamente.");
+        } catch (error) {
+          console.error('Error eliminando la subasta:', error);
+        }
+      };
 
     //ImagePicker
     const handleImagePickerPress = async () => {
@@ -330,16 +352,16 @@ const validateForm = () => {
                     {vista === 'Lista' && (
                         <FlatList
                             data={listaProductos}
-                            renderItem={({item, index}) => (
+                            renderItem={({item}) => (
                                 <ProductList
                                 nombre={item.title}
                                 precio={item.firstprice}
                                 descripcion={item.descripcion}
                                 imageSource={{uri: item.image}}
-                                onDelete={() => handleDelete(index)}
+                                onDelete={() => handleDelete(item.id)}
                             />
                             )}
-                            keyExtractor={(item, index) => index.toString()}
+                            keyExtractor={(item) => item.id}
                         />
                     )}
 
@@ -349,7 +371,7 @@ const validateForm = () => {
                         precio={item.firstprice}
                         descripcion={item.descripcion}
                         imageSource={{uri: item.image}}
-                        onDelete={() => handleDelete(index)}
+                        onDelete={() => handleDelete(item.id)}
                             />
                             
                     ))}
