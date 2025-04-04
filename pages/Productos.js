@@ -240,6 +240,7 @@ const validateForm = () => {
                                     placeholder='Nombre Del Producto' 
                                     value={nombre}
                                     onChangeText={setNombre}
+                                    maxLength={35}
                                     placeholderTextColor={'#634455'}/>
 
                                     <Picker
@@ -266,12 +267,14 @@ const validateForm = () => {
                                     placeholder='Precio (MXN)' 
                                     value={precio}
                                     onChangeText={setPrecio}
+                                    maxLength={7}
                                     placeholderTextColor={'#634455'}/>
 
                                     <TextInput style={styles.inputDoble} 
                                     placeholder='Cantidad' 
                                     value={cantidad}
                                     onChangeText={setCantidad}
+                                    maxLength={2}
                                     placeholderTextColor={'#634455'}/>
                                 </View>
 
@@ -280,6 +283,7 @@ const validateForm = () => {
                             style={styles.inputDescripcion} 
                             placeholder='Descripcion' 
                             value={descripcion}
+                            maxLength={150}
                             onChangeText={setDescripcion}
                             placeholderTextColor={'#634455'}/>                      
                         </View>
@@ -484,6 +488,3 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     }
 })
-
-
-
