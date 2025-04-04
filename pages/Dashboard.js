@@ -159,12 +159,12 @@ const Dashboard = () => {
                                 ventas.map((venta, index) => (
                                     <VentaContainer
                                         key={index}
-                                        nombre={venta.title || 'Nombre Producto'} // Asegúrate de acceder correctamente a los datos
-                                        cantidad={venta.total_price || 1} // Total de la venta o cantidad
-                                        comprador={venta.name || 'Fidel Orozco'} // Asumiendo que tienes un campo comprador
-                                        ciudad={venta.city || 'San Luis Rio Colorado'} // Ciudad
-                                        direccion={venta.address || 'Colima y 17'} // Dirección
-                                        imageSource={{ uri: venta.image || 'defaultImage.jpg' }} // Asegúrate de tener la imagen asociada
+                                        nombre={venta.artworkTitle || 'no se encontró el nombre'} 
+                                        cantidad={venta.total_price || 1}
+                                        comprador={venta.buyerName || 'Anonimo'} 
+                                        ciudad={venta.buyerCity || 'San Luis Rio Colorado'}
+                                        direccion={venta.buyerAddress || 'sin dirección'} 
+                                        imageSource={{ uri: venta.artworkImage || 'defaultImage.jpg' }}
                                     />
                                 ))
                             ) : (
