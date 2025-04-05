@@ -127,7 +127,7 @@ const Dashboard = () => {
                                 subastas.map((subasta, index) => (
                                     <SubastaContainer
                                         key={index}
-                                        nombre={subasta.title} // Ajusta según el modelo de datos
+                                        nombre={subasta.title} 
                                         oferta={subasta.currentBid}
                                         tiempo={new Date(subasta.endedtime).toLocaleString('es-MX', {
                                             year: 'numeric',
@@ -136,7 +136,7 @@ const Dashboard = () => {
                                             hour: '2-digit',
                                             minute: '2-digit',
                                         })}
-                                        imageSource={{ uri: subasta.image }} // Suponiendo que tienes la URL de la imagen
+                                        imageSource={{ uri: subasta.image }} 
                                     />
                                 ))
                             ) : (
@@ -249,3 +249,4 @@ const styles = StyleSheet.create({
         paddingVertical: 5
     }
 });
+
