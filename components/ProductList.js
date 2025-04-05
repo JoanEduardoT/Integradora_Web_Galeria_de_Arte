@@ -1,102 +1,91 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
+import { useFonts } from 'expo-font';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect } from 'react';
 
 //iconos
 import Feather from '@expo/vector-icons/Feather';
 
-const ProductList = ({nombre, precio, cantidad, descripcion, imageSource, onDelete}) => {
+const ProductCard = ({nombre, precio, cantidad, categoria, imageSource, onDelete}) => {
+    console.log(ProductCard)
 
     return (
-        <View style={styles.containerPrincipal}>
-
-            <View style={styles.containerSecundario}>
-                {imageSource && (<Image source={imageSource } style={styles.image}/>)}
-
-                <View style={{width:'95%'}}>
-                    <Text style={styles.titulo}>{nombre}</Text>
-                    <Text style={styles.precio}>Precio: ${precio} MXN</Text>
-
-                    <Text style={styles.titulo2}>Descripcion</Text>
-                    <View>
-                        <Text style={styles.descripcion}>{descripcion}</Text>
-                    </View> 
-                    
+        <View style={styles.cardbody}>
+            
+            {imageSource && (
+                <View style={{height: '55%'}}>
+                    <Image source={ imageSource } style={styles.image} />
                 </View>
-            </View>
+            )}
 
-            <TouchableOpacity style={styles.eliminarBtn} onPress={onDelete}>
-                <Feather name="trash-2" size={30} color="#FFFFF3" />
-            </TouchableOpacity>
+            <Text style={styles.nombre}>{nombre}</Text>
+
+            <Text style={styles.detalles}>Precio: ${precio} MXN</Text>
             
 
+            <TouchableOpacity style={styles.boton} onPress={onDelete}>
+                <Text style={styles.textoBtn}>Eliminar Producto</Text>
+                <Feather name="trash-2" size={15} color="#FFFFF3" />
+            </TouchableOpacity>
+            
         </View>
     )
 }
 
-export default ProductList
+export default ProductCard
 
 const styles = StyleSheet.create({
-
-    containerPrincipal: {
+    cardbody: {
+        height: 380,
+        width: '24%',
+        margin: 6,
+        backgroundColor: '#FFF9F9',
+        borderRadius: 20,
+        boxShadow: '0px 5px 10px rgba(0, 0, 0, 0.3)',
+    },
+    image: {
+        flex: 1,
+        width: '90%',
+        marginHorizontal: 15,
+        marginTop: 15,
+        marginBottom: 10,
+        borderRadius: 10,
+        alignSelf: 'center'
+    },
+    nombre: {
+        fontWeight: 'bold',
+        fontSize: 20,
+        alignSelf: 'center',
+        color: '#1A1A1A',
+        marginBottom: 10,
+    },
+    contenedor: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        width: '99%',
-        height: 250,
-        paddingHorizontal: 50,
-        backgroundColor: '#FFF9F9',
-        borderRadius: 50,
-        boxShadow: '0px 5px 10px rgba(0, 0, 0, 0.3)',
-        alignSelf: 'center',
-        margin: 10,
-        
+        marginHorizontal: 15
     },
-    containerSecundario:{
+    detalles: {
+        marginLeft: 20,
+        fontSize: 15,
+    },
+    boton: {
         flexDirection: 'row',
-        alignItems: 'center',
         width: '80%',
-        
-    },
-    image:{
-        width: 170,
-        height: 170,
-        borderRadius: 100
-    },
-    titulo:{
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginLeft: 20,
-        color: '#1A1A1A'
-    },
-    titulo2:{
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 10,
-        marginLeft: 20,
-        color: '#1A1A1A'
-    },
-    cantidad:{
-        fontSize: 15,
-        marginLeft: 20,
-        color: '#1a1a1a'
-    },
-    precio:{
-        fontSize: 15,
-        marginLeft: 20,
-        color: '#1a1a1a'
-    },
-    descripcion:{
-        fontSize: 15,
-        marginLeft: 20,
-        color: '#1a1a1a'
-    },
-    eliminarBtn:{
-        width: 50,
-        height: 50,
-        borderRadius: 10,
-        backgroundColor: '#E3298F',
+        height: 35,
+        marginTop: 20,
+        backgroundColor: '#E3289F',
+        borderRadius: 5,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        alignSelf: 'center'
+    },
+    textoBtn: {
+        fontSize: 15,
+        color: '#fffff3',
+        fontWeight: 'bold',
+        marginRight: 5
     }
 })
 
