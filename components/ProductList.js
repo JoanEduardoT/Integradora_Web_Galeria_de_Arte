@@ -12,7 +12,7 @@ const ProductList = ({nombre, precio, cantidad, descripcion, imageSource, onDele
             <View style={styles.containerSecundario}>
                 {imageSource && (<Image source={imageSource } style={styles.image}/>)}
 
-                <View>
+                <View style={{width:'95%'}}>
                     <Text style={styles.titulo}>{nombre}</Text>
                     <Text style={styles.precio}>Precio: ${precio} MXN</Text>
 
@@ -53,7 +53,9 @@ const styles = StyleSheet.create({
     },
     containerSecundario:{
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        width: '80%',
+        
     },
     image:{
         width: 170,
@@ -97,3 +99,4 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     }
 })
+
