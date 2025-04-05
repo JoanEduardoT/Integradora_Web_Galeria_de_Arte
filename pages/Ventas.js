@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
         overflowY: 'auto',
         width: '100%',
         backgroundColor: '#FFFFF3',
+        paddingBottom: 100
     },
     titulo: {
         fontSize: 30,
@@ -96,3 +97,4 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
 });
+
