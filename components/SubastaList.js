@@ -12,22 +12,24 @@ const SubastaList = ({nombre, precio, tiempo, descripcion, imageSource, onDelete
             <View style={styles.containerSecundario}>
                 {imageSource && (<Image source={imageSource} style={styles.image}/>)}
 
-                <View>
+                <View style={{ width: '95%'}}>
                     <Text style={styles.titulo}>{nombre}</Text>
                     <Text style={styles.precio}>Oferta Actual: ${precio} MXN</Text>
                     <Text style={styles.tiempo}>Vencimiento: {tiempo}</Text>
 
                     <Text style={styles.titulo2}>Descripcion</Text>
-                    <View>
+                    <View >
                         <Text style={styles.descripcion}>{descripcion}</Text>
                     </View> 
                     
                 </View>
+
+                
             </View>
 
             <TouchableOpacity style={styles.eliminarBtn} onPress={onDelete}>
-                <Feather name="trash-2" size={30} color="#FFFFF3" />
-            </TouchableOpacity>
+                    <Feather name="trash-2" size={30} color="#FFFFF3" />
+                </TouchableOpacity>
             
 
         </View>
@@ -54,7 +56,9 @@ const styles = StyleSheet.create({
     },
     containerSecundario:{
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        width: '80%',
+        
     },
     image:{
         width: 170,
