@@ -154,7 +154,7 @@ const Subastas = () => {
             });
     
             let result = await response.json();
-            return result.secure_url; // URL de la imagen subida
+            return result.secure_url; 
         } catch (error) {
             console.error("Error al subir la imagen a Cloudinary:", error);
             return null;
@@ -198,7 +198,7 @@ const Subastas = () => {
             const response = await axios.post('http://iwo4c40ogk48wo48w844ow0s.31.170.165.191.sslip.io/Addactions', formData);
             console.log("datos enviados:", formData);
             console.log('Producto registrado:', response.data);
-            window.alert('Subasta registrada correctamente.');
+            window.alert('Subasta registrado correctamente.');
 
             
             const fetchData = async () => {
@@ -463,3 +463,5 @@ const styles = StyleSheet.create({
         color: '#FFFFF3'
     }
 })
+
+
